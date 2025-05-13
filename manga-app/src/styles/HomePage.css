@@ -1,0 +1,49 @@
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home-page h1 {
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 2.5rem;
+  position: relative;
+  padding-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.home-page h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: var(--accent-color);
+}
+
+/* Responsive adjustments */
+
+@media (max-width: 768px) {
+  .home-page {
+    padding: 15px;
+  }
+
+  .home-page .manga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+  }
+
+  .home-page h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-page .manga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+}

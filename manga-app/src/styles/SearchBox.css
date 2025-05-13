@@ -1,0 +1,122 @@
+.search-box {
+  --search-bg: rgba(30, 44, 53, 0.8);
+  --search-text: var(--text-secondary);
+  --search-placeholder: rgba(255, 255, 255, 0.5);
+  --search-border: rgba(255, 255, 255, 0.1);
+  --search-focus-bg: rgba(30, 44, 53, 0.9);
+  --search-focus-border: var(--accent-color);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  height: 48px;
+  background-color: var(--search-bg);
+  border: 1px solid var(--search-border);
+  border-radius: 24px;
+  padding: 0 15px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto 30px;
+}
+
+.search-box.focused {
+  background-color: var(--search-focus-bg);
+  border-color: var(--search-focus-border);
+  box-shadow: 0 0 0 2px rgba(255, 64, 129, 0.2);
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  padding-left: 8px;
+  font-family: inherit;
+}
+
+.search-input::placeholder {
+  color: var(--search-placeholder);
+  font-size: 0.95rem;
+}
+
+.search-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--search-text);
+  transition: color 0.2s ease;
+}
+
+.search-box:hover .search-button,
+.search-box.focused .search-button {
+  color: var(--accent-color);
+}
+
+.clear-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 4px;
+  color: var(--search-text);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.clear-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  color: var(--accent-color);
+}
+
+/* Pulsing animation for the search icon when no results */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.search-box.no-results .search-button {
+  animation: pulse 1.5s infinite;
+  color: var(--accent-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-box {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    height: 42px;
+  }
+
+  .search-input {
+    font-size: 0.9rem;
+  }
+
+  .search-input::placeholder {
+    font-size: 0.85rem;
+  }
+}

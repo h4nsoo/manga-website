@@ -1,11 +1,16 @@
-import React from 'react';
+import '../styles/Loader.css';
 
-function Loader({ size = 'medium', text = 'Loading...' }) {
+function Loader({message}) {
   return (
-    <div className={`loader-container ${size}`}>
-      <div className="spinner"></div>
-      {text && <p className="loading-text">{text}</p>}
-    </div>
+    <div className="loading-container">
+          <div className="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p>{message}</p>
+        </div>
   );
 }
 

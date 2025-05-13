@@ -1,35 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import MangaCard from "./MangaCard";
+import '../styles/MangaGrid.css';
 
-function GenreButton({ genre, onClick }) {
-  const { id, name, count } = genre;
-
-  // If onClick is provided, use it (for when you want custom behavior)
-  // Otherwise, default to linking to the genre page
-  if (onClick) {
-    return (
-      <button
-        className="genre-button"
-        onClick={() => onClick(genre)}
-        aria-label={`View ${name} manga`}
-      >
-        <span className="genre-name">{name}</span>
-        {count && <span className="genre-count">{count}</span>}
-      </button>
-    );
+function MangaGrid({
+  manga,
+  emptyMessage = "No manga found. Try refreshing the page.",
+}) {
+  if (!manga || manga.length === 0) {
+    return <p className="no-results">{emptyMessage}</p>;
   }
 
-  // Default behavior - link to genre page
   return (
-    <Link
-      to={`/genres/${id}`}
-      className="genre-button"
-      aria-label={`View ${name} manga`}
-    >
-      <span className="genre-name">{name}</span>
-      {count && <span className="genre-count">{count}</span>}
-    </Link>
+    <div className="manga-grid">
+      {manga.map((item) => (
+        <MangaCard key={item.id} manga={item} />
+      ))}
+    </div>
   );
 }
 
-export default GenreButton;
+export default MangaGrid;

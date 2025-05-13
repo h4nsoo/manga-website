@@ -1,12 +1,26 @@
+import React from "react";
 import { Link } from "react-router-dom";
-
+import "../styles/MangaCard.css";
 function MangaCard({ manga }) {
   return (
     <Link to={`/manga/${manga.id}`} className="manga-card">
-      <img src={manga.coverImage} alt={manga.title} loading="lazy" />
-      <div className="manga-info">
-        <h3>{manga.title}</h3>
+      <div className="manga-card-image-container">
+        <img
+          src={manga.coverImage}
+          alt={manga.title}
+          className="manga-card-image"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://via.placeholder.com/200x300?text=No+Cover";
+          }}
+        />
       </div>
+      <h3
+        className="manga-card-title"
+        title={manga.originalTitle || manga.title}
+      >
+        {manga.title}
+      </h3>
     </Link>
   );
 }

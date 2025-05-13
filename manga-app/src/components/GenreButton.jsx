@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 function GenreButton({ genre, onClick }) {
   const { id, name, count } = genre;
   
-  // If onClick is provided, use it (for when you want custom behavior)
-  // Otherwise, default to linking to the genre page
   if (onClick) {
     return (
       <button 
@@ -19,7 +17,6 @@ function GenreButton({ genre, onClick }) {
     );
   }
   
-  // Default behavior - link to genre page
   return (
     <Link 
       to={`/genres/${id}`} 
