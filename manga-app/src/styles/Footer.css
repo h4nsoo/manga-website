@@ -7,6 +7,7 @@
   flex-shrink: 0;
   width: 100%;
 }
+
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -55,27 +56,9 @@
   transform: translateX(5px);
 }
 
-.social-icons {
-  display: flex;
-  gap: 1rem;
+/* Social icons container - just position the component */
+.footer-social-container {
   margin-top: 1rem;
-}
-
-.social-icons a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: var(--card-bg);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.social-icons a:hover {
-  background-color: var(--accent-color);
-  transform: translateY(-3px);
 }
 
 .footer-bottom {
@@ -92,6 +75,25 @@
 
 .footer-bottom a {
   color: var(--accent-color);
+}
+
+/* Add to Footer.css */
+.portfolio-link {
+  margin-top: 15px;
+}
+
+.portfolio-link a {
+  color: var(--accent-color);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.portfolio-link a:hover {
+  opacity: 0.9;
+  transform: translateX(3px);
 }
 
 @media (max-width: 768px) {
@@ -111,10 +113,6 @@
   .footer-section h4::after {
     left: 50%;
     transform: translateX(-50%);
-  }
-
-  .social-icons {
-    justify-content: center;
   }
 
   .footer-links a:hover {

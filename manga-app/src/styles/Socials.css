@@ -1,0 +1,140 @@
+
+.socials-container {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.socials-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.socialContainer {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.socialContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  transform: scale(0);
+  z-index: -1;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.socialContainer:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.socialContainer:hover::before {
+  transform: scale(1);
+}
+
+.socialContainer:active {
+  transform: scale(0.9) translateY(0);
+}
+
+/* LinkedIn */
+.containerOne::before {
+  background: #0072b1;
+}
+
+/* GitHub */
+.containerTwo::before {
+  background: #24292e;
+}
+
+/* Facebook */
+.containerThree::before {
+  background: #1877f2;
+}
+
+/* Instagram */
+.containerFour::before {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.socialSvg {
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+}
+
+.socialSvg path {
+  fill: var(--text-secondary);
+  transition: fill 0.3s ease;
+}
+
+.socialContainer:hover .socialSvg path {
+  fill: white;
+}
+
+.socialContainer:hover .socialSvg {
+  animation: pop-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
+.githubSvg {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes pop-up {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Footer-specific styles */
+.footer-social-container .socials-wrapper {
+  justify-content: flex-start;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .footer-social-container .socials-wrapper {
+    justify-content: center;
+  }
+  
+  .socialContainer {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .socialSvg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .githubSvg {
+    width: 18px;
+    height: 18px;
+  }
+}

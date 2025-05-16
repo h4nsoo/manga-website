@@ -1,10 +1,18 @@
 import { NavLink } from "react-router-dom";
-import '../styles/Navbar.css';
+import "../styles/Navbar.css";
+import ToonSahLogo from "../assets/logo.png";
 
 function Navbar() {
   return (
     <header>
-      <div className="logo">MangaReader</div>
+      <div className="logo">
+        <NavLink
+          to="/"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          <img src={ToonSahLogo} alt="Logo" />
+        </NavLink>
+      </div>
       <nav>
         <NavLink
           to="/"
@@ -18,12 +26,7 @@ function Navbar() {
         >
           Browse
         </NavLink>
-        <NavLink
-          to="/genres"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          Genres
-        </NavLink>
+
       </nav>
     </header>
   );

@@ -10,6 +10,8 @@ function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const BASE_URL = "https://api.mangadex.org";
+
   const handleSearch = (results) => {
     setSearchResults(results);
   };
@@ -26,11 +28,11 @@ function BrowsePage() {
   async function fetchRandomManga() {
     setLoading(true);
     setError(null);
-    setManga([]); 
+    setManga([]);
 
     try {
       const response = await fetch(
-        "https://api.mangadex.org/manga?limit=20&contentRating[]=safe&includes[]=cover_art"
+        `${BASE_URL}/manga?limit=20&contentRating[]=safe&includes[]=cover_art`
       );
 
       if (!response.ok) {
@@ -82,7 +84,10 @@ function BrowsePage() {
       <h1>Browse Manga</h1>
 
       <div className="browse-controls">
-        <SearchBox onSearch={handleSearch} getCoverImageUrl={getCoverImageUrl} />
+        <SearchBox
+          onSearch={handleSearch}
+          getCoverImageUrl={getCoverImageUrl}
+        />
 
         {searchResults && (
           <button
@@ -106,7 +111,7 @@ function BrowsePage() {
       )}
 
       {loading ? (
-        <Loader message="Loading manga..."/>
+        <Loader message="Loading manga..." />
       ) : (
         <>
           {!error && (
