@@ -8,7 +8,7 @@ import Slider from "../components/Slider";
 
 function HomePage() {
 
-  const BASE_URL = "https://api.mangadex.org";
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [mangaList, setMangaList] = useState([]);
   const [loading, setLoading] = useState(true);
