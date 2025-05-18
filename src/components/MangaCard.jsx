@@ -1,9 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/MangaCard.css";
+
 function MangaCard({ manga }) {
   return (
-    <Link to={`/manga/${manga.id}`} className="manga-card">
+    <Link
+      to={`/manga/${manga.id}`}
+      state={{ manga }} 
+      className="manga-card"
+    >
       <div className="manga-card-image-container">
         <img
           src={manga.coverImage}

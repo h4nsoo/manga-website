@@ -4,7 +4,7 @@ import Loader from "./Loader";
 import "../styles/Slider.css";
 
 const Slider = () => {
-  const BASE_URL = "https://api.mangadex.org";
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const [popularManga, setPopularManga] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -91,7 +91,7 @@ const Slider = () => {
   };
 
   return (
-    <section className="manga-slider">
+    <div className="manga-slider">
       <h1 className="slider-heading">Popular Manga</h1>
 
       <div className="slider-container">
@@ -134,22 +134,25 @@ const Slider = () => {
                   <div className="slide-content">
                     <h2>{manga.title}</h2>
                     <p>{manga.description}</p>
-                    <Link to={`/manga/${manga.id}`} className="read-more-btn">
+                    <Link
+                      to={`/manga/${manga.id}`}
+                      className="cssbuttons-io-button"
+                    >
                       Read More
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                      </svg>
+                      <div class="icon">
+                        <svg
+                          height="24"
+                          width="24"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M0 0h24v24H0z" fill="none"></path>
+                          <path
+                            d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+                            fill="currentColor"
+                          ></path>
+                        </svg>
+                      </div>
                     </Link>
                   </div>
                 </div>
@@ -198,7 +201,7 @@ const Slider = () => {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 };
 
