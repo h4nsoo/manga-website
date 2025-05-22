@@ -1,0 +1,153 @@
+.chapter-reader-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+.reader-header {
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-button {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.back-button:hover {
+  background-color: var(--accent-color);
+}
+
+.chapter-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.manga-title {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #f0f0f0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chapter-title {
+  margin: 0;
+  font-size: 1.1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chapter-navigation {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-secondary);
+  margin-bottom: 1rem;
+}
+
+.chapter-nav-button {
+  background-color: #4a6fa5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.chapter-nav-button:hover:not(:disabled) {
+  background-color: #3d5c8c;
+}
+
+.chapter-nav-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.reader-content {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--bg-primary); 
+  width: 100%;
+}
+
+.page-container {
+  position: relative;
+  margin-bottom: 0; 
+  background-color: transparent;
+  padding: 0;
+  box-shadow: none;
+  max-width: 800px;
+  width: 100%;
+}
+
+.page-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0;
+}
+
+
+.reader-footer {
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chapter-loading,
+.chapter-error {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .reader-header {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .chapter-info {
+    max-width: calc(100% - 80px);
+  }
+
+  .reader-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .chapter-nav-button {
+    width: 100%;
+  }
+}
