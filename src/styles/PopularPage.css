@@ -1,0 +1,16 @@
+.popular-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.popular-page h1 {
+  text-align: center;
+  margin: 20px 0 10px;
+}
+
+.popular-page .subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}

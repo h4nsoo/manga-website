@@ -5,6 +5,7 @@ import BrowsePage from "./pages/BrowsePage";
 import MangaDetailPage from "./pages/MangaDetailPage";
 import ChapterReaderPage from "./pages/ChapterReaderPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import PopularPage from "./pages/PopularPage";
 import Footer from "./components/Footer";
 import "./styles/App.css";
 
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/popular" element={<PopularPage />} />
           <Route path="/manga/:id" element={<MangaDetailPage />} />
           <Route
             path="/manga/:mangaId/chapter/:chapterId"

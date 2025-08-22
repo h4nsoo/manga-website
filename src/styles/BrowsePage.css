@@ -13,7 +13,7 @@
 }
 
 .browse-page h1::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -83,6 +83,36 @@
   background-color: #ff79b0;
 }
 
+/* Force 6 items per row on the Browse page grid (desktop) */
+.browse-page .manga-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* Responsive adjustments specifically for Browse page grid */
+@media (max-width: 1200px) {
+  .browse-page .manga-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .browse-page .manga-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .browse-page .manga-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .browse-page .manga-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .error-message {
   text-align: center;
   padding: 15px;
@@ -93,12 +123,11 @@
   color: #ff6060;
 }
 
-
 @media (max-width: 768px) {
   .browse-page {
     padding: 15px;
   }
-  
+
   .browse-page h1 {
     font-size: 1.8rem;
   }
@@ -108,7 +137,7 @@
   .browse-page h1 {
     font-size: 1.5rem;
   }
-  
+
   .browse-controls {
     margin-bottom: 20px;
   }

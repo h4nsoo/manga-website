@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "../styles/ChapterReaderPage.css";
 import Loader from "../components/Loader";
-import ErrorMessage from "../components/ErrorMessage";
 
 function ChapterReaderPage() {
   const { mangaId, chapterId } = useParams();
@@ -15,16 +14,37 @@ function ChapterReaderPage() {
 
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [chapterInfo, setChapterInfo] = useState(chapterData || null);
   const [manga, setManga] = useState(mangaData || null);
   const [error, setError] = useState(null);
   const [nextChapter, setNextChapter] = useState(null);
   const [prevChapter, setPrevChapter] = useState(null);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
   // References for scrolling
   const pageRefs = useRef([]);
-  const readerRef = useRef(null);
+  const lastScrollTop = useRef(0);
+
+  // Scroll event handler to hide/show header
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (scrollTop > lastScrollTop.current) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      lastScrollTop.current = scrollTop <= 0 ? 0 : scrollTop;
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // Fetch manga data and chapter list
   useEffect(() => {
@@ -33,30 +53,26 @@ function ChapterReaderPage() {
         // If we don't have manga data, fetch it
         if (!mangaData) {
           const mangaResponse = await fetch(
-            `${
-              import.meta.env.VITE_BASE_URL
-            }/manga/${mangaId}?includes[]=cover_art&includes[]=author`
+            `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}?includes[]=cover_art&includes[]=author`
           );
-
+          
           if (mangaResponse.ok) {
             const mangaResult = await mangaResponse.json();
             const mangaData = mangaResult.data;
-
+            
             // Extract basic manga info
-            const coverRel = mangaData.relationships?.find(
-              (rel) => rel.type === "cover_art"
-            );
+            const coverRel = mangaData.relationships?.find(rel => rel.type === "cover_art");
             const coverFile = coverRel?.attributes?.fileName;
             const title =
               mangaData.attributes.title.en ||
               Object.values(mangaData.attributes.title)[0] ||
               "Unknown Manga";
-
+            
             setManga({
               id: mangaData.id,
               title: title,
               coverImage: coverFile
-                ? `https://uploads.mangadex.org/covers/${mangaData.id}/${coverFile}`
+                ? `https://uploads.mangadx.org/covers/${mangaData.id}/${coverFile}`
                 : "https://via.placeholder.com/300x400?text=No+Cover",
             });
           }
@@ -66,20 +82,18 @@ function ChapterReaderPage() {
 
         // Fetch all chapters to find next/prev
         const chaptersResponse = await fetch(
-          `${
-            import.meta.env.VITE_BASE_URL
-          }/manga/${mangaId}/feed?translatedLanguage[]=en&order[volume]=asc&order[chapter]=asc&limit=500`
+          `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?translatedLanguage[]=en&order[volume]=asc&order[chapter]=asc&limit=500`
         );
-
+        
         if (chaptersResponse.ok) {
           const chaptersData = await chaptersResponse.json();
           const chapters = chaptersData.data;
-
+          
           // Find current chapter index
           const currentChapterIndex = chapters.findIndex(
-            (chapter) => chapter.id === chapterId
+            chapter => chapter.id === chapterId
           );
-
+          
           // Set next and previous chapters
           if (currentChapterIndex !== -1) {
             if (currentChapterIndex > 0) {
@@ -87,18 +101,16 @@ function ChapterReaderPage() {
               setPrevChapter({
                 id: prev.id,
                 number: prev.attributes.chapter || "N/A",
-                title:
-                  prev.attributes.title || `Chapter ${prev.attributes.chapter}`,
+                title: prev.attributes.title || `Chapter ${prev.attributes.chapter}`,
               });
             }
-
+            
             if (currentChapterIndex < chapters.length - 1) {
               const next = chapters[currentChapterIndex + 1];
               setNextChapter({
                 id: next.id,
                 number: next.attributes.chapter || "N/A",
-                title:
-                  next.attributes.title || `Chapter ${next.attributes.chapter}`,
+                title: next.attributes.title || `Chapter ${next.attributes.chapter}`,
               });
             }
           }
@@ -107,7 +119,7 @@ function ChapterReaderPage() {
         console.error("Error fetching manga or chapters:", err);
       }
     };
-
+    
     fetchMangaAndChapters();
   }, [mangaId, mangaData, chapterId]);
 
@@ -116,17 +128,18 @@ function ChapterReaderPage() {
     const fetchChapterPages = async () => {
       try {
         setLoading(true);
-
+        
+        // Fetch chapter info if not provided in location state
         let chapterToUse = chapterData;
         if (!chapterToUse) {
           const chapterResponse = await fetch(
             `${import.meta.env.VITE_BASE_URL}/chapter/${chapterId}`
           );
-
+          
           if (!chapterResponse.ok) {
             throw new Error("Failed to fetch chapter data");
           }
-
+          
           const chapterResult = await chapterResponse.json();
           chapterToUse = {
             id: chapterResult.data.id,
@@ -137,31 +150,32 @@ function ChapterReaderPage() {
           };
         }
         setChapterInfo(chapterToUse);
-
+        
+        // Fetch the actual chapter pages
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/at-home/server/${chapterId}`
         );
-
+        
         if (!response.ok) {
           throw new Error("Failed to fetch chapter pages");
         }
-
+        
         const data = await response.json();
-
+        
+        // Format page URLs
         const baseUrl = data.baseUrl;
         const chapterHash = data.chapter.hash;
         const pageFilenames = data.chapter.data;
-
+        
+        // Create page URLs
         const pageUrls = pageFilenames.map(
           (filename) => `${baseUrl}/data/${chapterHash}/${filename}`
         );
-
-        pageRefs.current = Array(pageUrls.length);
-
+        
         setPages(pageUrls);
-        setCurrentPageIndex(0);
         setLoading(false);
-
+        
+        // Scroll to top when loading new chapter
         window.scrollTo(0, 0);
       } catch (err) {
         console.error("Error loading chapter:", err);
@@ -169,14 +183,15 @@ function ChapterReaderPage() {
         setLoading(false);
       }
     };
-
+    
     fetchChapterPages();
   }, [chapterId, chapterData]);
 
+  // Navigation between chapters
   const goToNextChapter = () => {
     if (nextChapter) {
       navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, {
-        state: { manga, chapter: nextChapter },
+        state: { manga, chapter: nextChapter }
       });
     }
   };
@@ -184,7 +199,7 @@ function ChapterReaderPage() {
   const goToPrevChapter = () => {
     if (prevChapter) {
       navigate(`/manga/${mangaId}/chapter/${prevChapter.id}`, {
-        state: { manga, chapter: prevChapter },
+        state: { manga, chapter: prevChapter }
       });
     }
   };
@@ -201,7 +216,7 @@ function ChapterReaderPage() {
   if (error) {
     return (
       <div className="chapter-error">
-        <ErrorMessage message={error} />
+        <p>{error}</p>
         <button onClick={() => navigate(`/manga/${mangaId}`)}>
           Back to Manga
         </button>
@@ -211,7 +226,7 @@ function ChapterReaderPage() {
 
   return (
     <div className="chapter-reader-container">
-      <div className="reader-header">
+      <div className={`reader-header ${!isHeaderVisible ? 'hidden' : ''}`}>
         <button
           className="back-button"
           onClick={() => navigate(`/manga/${mangaId}`)}
@@ -228,7 +243,7 @@ function ChapterReaderPage() {
         </div>
       </div>
 
-      <div className="chapter-navigation">
+      <div className={`chapter-navigation ${!isHeaderVisible ? 'hidden' : ''}`}>
         <button
           onClick={goToPrevChapter}
           disabled={!prevChapter}
@@ -246,12 +261,11 @@ function ChapterReaderPage() {
       </div>
 
       {/* Reader content */}
-      <div className="reader-content" ref={readerRef}>
+      <div className="reader-content">
         {pages.map((page, index) => (
           <div
             key={index}
             className="page-container"
-            ref={(el) => (pageRefs.current[index] = el)}
           >
             <img
               src={page}
@@ -260,8 +274,7 @@ function ChapterReaderPage() {
               loading={index < 3 ? "eager" : "lazy"}
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src =
-                  "https://via.placeholder.com/800x1200?text=Image+Not+Available";
+                e.target.src = "https://via.placeholder.com/800x1200?text=Image+Not+Available";
               }}
             />
           </div>

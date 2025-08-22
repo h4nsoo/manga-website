@@ -38,6 +38,9 @@ const Slider = () => {
   async function fetchPopularManga() {
     setLoading(true);
     try {
+      console.log("Fetching popular manga with available chapters...");
+
+      // First, get a larger pool of potentially popular manga with available chapters filter
       const response = await fetch(
         `${BASE_URL}/manga?limit=20&includes[]=cover_art&includes[]=author&contentRating[]=safe&contentRating[]=suggestive&order[followedCount]=desc&hasAvailableChapters=true&availableTranslatedLanguage[]=en`
       );
@@ -49,6 +52,7 @@ const Slider = () => {
       const data = await response.json();
 
       if (!data.data || data.data.length === 0) {
+        console.log("No manga found with enhanced search, trying fallback...");
         await fetchPopularMangaFallback();
         setLoading(false);
         return;
@@ -60,8 +64,12 @@ const Slider = () => {
         candidates.map((m) => hasEnglishChapters(m.id, 1))
       );
 
-      const processed = [];
-      for (let i = 0; i < candidates.length && processed.length < 5; i++) {
+      const mangaWithChapters = [];
+      for (
+        let i = 0;
+        i < candidates.length && mangaWithChapters.length < 5;
+        i++
+      ) {
         const ok = checks[i].status === "fulfilled" && checks[i].value === true;
         if (!ok) continue;
 
@@ -81,27 +89,45 @@ const Slider = () => {
           coverImage = `https://uploads.mangadx.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
         }
 
+        // Get better description
+        let description = "No description available";
         const rawDesc = manga.attributes.description;
-        const shortDesc = rawDesc?.en
-          ? rawDesc.en.substring(0, 120) + "..."
-          : typeof rawDesc === "object" && rawDesc
-          ? (Object.values(rawDesc)[0] || "").toString().substring(0, 120) +
-            "..."
-          : "No description available";
+        if (rawDesc) {
+          const desc =
+            rawDesc.en ||
+            (typeof rawDesc === "object" ? Object.values(rawDesc)[0] : "");
+          description = desc
+            ? desc.length > 150
+              ? desc.substring(0, 150) + "..."
+              : desc
+            : "No description available";
+        }
 
-        processed.push({
+        mangaWithChapters.push({
           id: manga.id,
           title,
-          description: shortDesc,
+          description,
           coverImage,
+          followedCount: manga.attributes.followedCount || 0,
+          status: manga.attributes.status || "unknown",
+          year: manga.attributes.year || null,
         });
       }
 
-      if (processed.length === 0) {
-        await fetchPopularMangaFallback();
+      // Sort by followed count to ensure most popular are first
+      mangaWithChapters.sort((a, b) => b.followedCount - a.followedCount);
+
+      console.log(
+        `Found ${mangaWithChapters.length} popular manga with available chapters`
+      );
+
+      if (mangaWithChapters.length > 0) {
+        setPopularManga(mangaWithChapters);
       } else {
-        setPopularManga(processed);
+        console.log("No manga with chapters found, trying fallback...");
+        await fetchPopularMangaFallback();
       }
+
       setLoading(false);
     } catch (err) {
       console.error("Error fetching popular manga:", err);
@@ -110,64 +136,68 @@ const Slider = () => {
     }
   }
 
-  // Fallback method with simpler parameters and verification
+  // Fallback method with simpler parameters
   async function fetchPopularMangaFallback() {
     try {
+      console.log("Using fallback method for popular manga...");
       const fallbackResponse = await fetch(
-        `${BASE_URL}/manga?limit=12&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`
+        `${BASE_URL}/manga?limit=8&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`
       );
 
-      if (!fallbackResponse.ok) return;
-      const fallbackData = await fallbackResponse.json();
-      const fallbackCandidates = fallbackData.data || [];
-      const checks = await Promise.allSettled(
-        fallbackCandidates.map((m) => hasEnglishChapters(m.id, 1))
-      );
-
-      const processed = [];
-      for (
-        let i = 0;
-        i < fallbackCandidates.length && processed.length < 5;
-        i++
-      ) {
-        const ok = checks[i].status === "fulfilled" && checks[i].value === true;
-        if (!ok) continue;
-
-        const manga = fallbackCandidates[i];
-        const coverRelationship = manga.relationships.find(
-          (rel) => rel.type === "cover_art"
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json();
+        // Re-verify fallback items have EN chapters
+        const fallbackCandidates = fallbackData.data || [];
+        const checks = await Promise.allSettled(
+          fallbackCandidates.map((m) => hasEnglishChapters(m.id, 1))
         );
 
-        const title =
-          manga.attributes.title?.en ||
-          (manga.attributes.title &&
-            Object.values(manga.attributes.title)[0]) ||
-          "Untitled Manga";
+        const processed = [];
+        for (
+          let i = 0;
+          i < fallbackCandidates.length && processed.length < 5;
+          i++
+        ) {
+          const passed =
+            checks[i].status === "fulfilled" && checks[i].value === true;
+          if (!passed) continue;
 
-        let coverImage = "https://placehold.co/600x900";
-        if (coverRelationship?.attributes?.fileName) {
-          coverImage = `https://uploads.mangadx.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          const manga = fallbackCandidates[i];
+          const coverRelationship = manga.relationships.find(
+            (rel) => rel.type === "cover_art"
+          );
+
+          const title =
+            manga.attributes.title?.en ||
+            (manga.attributes.title &&
+              Object.values(manga.attributes.title)[0]) ||
+            "Untitled Manga";
+
+          let coverImage = "https://placehold.co/600x900";
+          if (coverRelationship?.attributes?.fileName) {
+            coverImage = `https://uploads.mangadx.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          }
+
+          const rawDesc = manga.attributes.description;
+          const shortDesc = rawDesc?.en
+            ? rawDesc.en.substring(0, 120) + "..."
+            : typeof rawDesc === "object" && rawDesc
+            ? (Object.values(rawDesc)[0] || "").toString().substring(0, 120) +
+              "..."
+            : "No description available";
+
+          processed.push({
+            id: manga.id,
+            title,
+            description: shortDesc,
+            coverImage,
+          });
         }
 
-        const rawDesc = manga.attributes.description;
-        const shortDesc = rawDesc?.en
-          ? rawDesc.en.substring(0, 120) + "..."
-          : typeof rawDesc === "object" && rawDesc
-          ? (Object.values(rawDesc)[0] || "").toString().substring(0, 120) +
-            "..."
-          : "No description available";
-
-        processed.push({
-          id: manga.id,
-          title,
-          description: shortDesc,
-          coverImage,
-        });
+        setPopularManga(processed);
       }
-
-      setPopularManga(processed);
-    } catch (e) {
-      console.error("Fallback fetch failed:", e);
+    } catch (fallbackError) {
+      console.error("Fallback also failed:", fallbackError);
       setPopularManga([]);
     }
   }
@@ -232,6 +262,7 @@ const Slider = () => {
                     <p>{manga.description}</p>
                     <Link
                       to={`/manga/${manga.id}`}
+                      state={{ manga }}
                       className="cssbuttons-io-button"
                     >
                       Read More
