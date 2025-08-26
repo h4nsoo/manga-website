@@ -1,12 +1,73 @@
-
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.custom-scrollbar {
+  flex: 1;
+  height: calc(100vh - 70px);
 }
 
 main {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
+}
+
+.simplebar-wrapper {
+  height: 100%;
+}
+
+.simplebar-mask {
+  height: 100%;
+}
+
+.simplebar-content-wrapper {
+  height: 100%;
+}
+
+.simplebar-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* Custom SimpleBar scrollbar styling to match theme */
+.custom-scrollbar .simplebar-scrollbar::before {
+  background: linear-gradient(180deg, #ff4081 0%, #ff6b9d 100%);
+  border-radius: 8px;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.custom-scrollbar .simplebar-scrollbar:hover::before {
+  opacity: 1;
+  background: linear-gradient(180deg, #ff4081 0%, #ff6b9d 100%);
+  box-shadow: 0 0 8px rgba(255, 64, 129, 0.4);
+}
+
+.custom-scrollbar .simplebar-track {
+  background: rgba(22, 34, 42, 0.3);
+  border-radius: 8px;
+}
+
+.custom-scrollbar .simplebar-track.simplebar-vertical {
+  width: 10px;
+  right: 3px;
+}
+
+.custom-scrollbar .simplebar-track.simplebar-horizontal {
+  height: 8px;
+  bottom: 3px;
+}
+
+/* Hide scrollbar when not needed */
+.custom-scrollbar .simplebar-track.simplebar-vertical[style*="visibility: hidden"] {
+  display: none;
+}
+
+.custom-scrollbar .simplebar-track.simplebar-horizontal[style*="visibility: hidden"] {
+  display: none;
 }
