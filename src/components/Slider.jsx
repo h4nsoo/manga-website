@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Loader from "./Loader";
 import "../styles/Slider.css";
@@ -8,19 +8,50 @@ const Slider = () => {
   const [popularManga, setPopularManga] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
+  const slideIntervalRef = useRef(null);
+  const refreshIntervalRef = useRef(null);
+  const REFRESH_INTERVAL_MS = 30 * 60 * 1000; // auto-refresh every 30 minutes
+
+  const startAutoSlide = () => {
+    if (slideIntervalRef.current) {
+      clearInterval(slideIntervalRef.current);
+    }
+    // Only start when we have items
+    if ((popularManga?.length || 0) > 0) {
+      slideIntervalRef.current = setInterval(() => {
+        setCurrentSlide((prev) => {
+          const len = popularManga.length;
+          if (!len) return prev;
+          return (prev + 1) % len;
+        });
+      }, 5000);
+    }
+  };
 
   useEffect(() => {
     fetchPopularManga();
-
-    // Auto-advance slider
-    const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % (popularManga.length || 5));
-    }, 5000);
-
-    return () => clearInterval(slideInterval);
+    startAutoSlide();
+    return () => {
+      if (slideIntervalRef.current) clearInterval(slideIntervalRef.current);
+    };
   }, [popularManga.length]);
 
-  // Preflight test: check if a given manga has at least `minCount` English chapters
+  // Background auto-refresh of the popular list
+  useEffect(() => {
+    // kick off initial fetch if not yet loaded
+    if (popularManga.length === 0 && !loading) {
+      fetchPopularManga();
+    }
+    if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+    refreshIntervalRef.current = setInterval(() => {
+      fetchPopularManga();
+    }, REFRESH_INTERVAL_MS);
+    return () => {
+      if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function hasEnglishChapters(mangaId, minCount = 1) {
     try {
       const res = await fetch(
@@ -38,24 +69,29 @@ const Slider = () => {
   async function fetchPopularManga() {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${BASE_URL}/manga?limit=20&includes[]=cover_art&includes[]=author&contentRating[]=safe&contentRating[]=suggestive&order[followedCount]=desc&hasAvailableChapters=true&availableTranslatedLanguage[]=en`
+      // All-time popular: order by followedCount desc
+      let response = await fetch(
+        `${BASE_URL}/manga?limit=30&includes[]=cover_art&includes[]=author&contentRating[]=safe&contentRating[]=suggestive&hasAvailableChapters=true&availableTranslatedLanguage[]=en&order[followedCount]=desc`
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch popular manga: ${response.status}`);
+        // Fallback: latest uploaded if primary fails
+        response = await fetch(
+          `${BASE_URL}/manga?limit=30&includes[]=cover_art&includes[]=author&contentRating[]=safe&contentRating[]=suggestive&hasAvailableChapters=true&availableTranslatedLanguage[]=en&order[latestUploadedChapter]=desc`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch popular manga: ${response.status}`);
+        }
       }
 
       const data = await response.json();
-
       if (!data.data || data.data.length === 0) {
         await fetchPopularMangaFallback();
         setLoading(false);
         return;
       }
 
-      // Verify manga actually have chapters and process them (parallelized)
-      const candidates = data.data.slice(0, 20);
+      const candidates = data.data.slice(0, 30);
       const checks = await Promise.allSettled(
         candidates.map((m) => hasEnglishChapters(m.id, 1))
       );
@@ -78,7 +114,7 @@ const Slider = () => {
 
         let coverImage = "https://placehold.co/600x900";
         if (coverRelationship?.attributes?.fileName) {
-          coverImage = `https://uploads.mangadx.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
         }
 
         const rawDesc = manga.attributes.description;
@@ -101,6 +137,7 @@ const Slider = () => {
         await fetchPopularMangaFallback();
       } else {
         setPopularManga(processed);
+        setCurrentSlide(0);
       }
       setLoading(false);
     } catch (err) {
@@ -110,7 +147,6 @@ const Slider = () => {
     }
   }
 
-  // Fallback method with simpler parameters and verification
   async function fetchPopularMangaFallback() {
     try {
       const fallbackResponse = await fetch(
@@ -146,7 +182,7 @@ const Slider = () => {
 
         let coverImage = "https://placehold.co/600x900";
         if (coverRelationship?.attributes?.fileName) {
-          coverImage = `https://uploads.mangadx.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
         }
 
         const rawDesc = manga.attributes.description;
@@ -174,16 +210,19 @@ const Slider = () => {
 
   const handleSlideChange = (index) => {
     setCurrentSlide(index);
+    startAutoSlide();
   };
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % popularManga.length);
+    startAutoSlide();
   };
 
   const prevSlide = () => {
     setCurrentSlide(
       (prev) => (prev - 1 + popularManga.length) % popularManga.length
     );
+    startAutoSlide();
   };
 
   return (

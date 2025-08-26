@@ -5,6 +5,7 @@
 }
 
 .popular-page h1 {
+  color: var(--accent-color);
   text-align: center;
   margin: 20px 0 10px;
 }
@@ -13,4 +14,32 @@
   text-align: center;
   color: var(--text-secondary);
   margin-bottom: 20px;
+}
+
+.popular-page .manga-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .popular-page .manga-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .popular-page .manga-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .popular-page .manga-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .popular-page .manga-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

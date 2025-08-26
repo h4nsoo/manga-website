@@ -5,25 +5,25 @@ import ErrorMessage from "../components/ErrorMessage";
 import "../styles/PopularPage.css";
 
 function PopularPage() {
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  // Prefer env API, fall back to MangaDex official API to avoid 400s on unsupported params
+  const API = import.meta.env.VITE_BASE_URL || "https://api.mangadex.org";
   const [manga, setManga] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchPopular();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCoverImageUrl = (mangaId, fileName) => {
-    if (!fileName) return "https://via.placeholder.com/300x400?text=No+Cover";
+    if (!fileName) return "https://via.placeholder.com/300x400?text=No+Cover"; // placeholder
     return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
   };
 
   async function hasEnglishChapters(mangaId, minCount = 1) {
     try {
       const res = await fetch(
-        `${BASE_URL}/manga/${mangaId}/feed?translatedLanguage[]=en&limit=${minCount}&contentRating[]=safe&contentRating[]=suggestive`
+        `${API}/manga/${mangaId}/feed?translatedLanguage[]=en&limit=${minCount}&contentRating[]=safe&contentRating[]=suggestive`
       );
       if (!res.ok) return false;
       const json = await res.json();
@@ -38,23 +38,78 @@ function PopularPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${BASE_URL}/manga?limit=40&includes[]=cover_art&order[followedCount]=desc&contentRating[]=safe&hasAvailableChapters=true&availableTranslatedLanguage[]=en`
-      );
+      // Most read recently: approximate by most-followed among recently updated series
+      const DAYS = 30;
+      const sinceISO =
+        new Date(Date.now() - DAYS * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split(".")[0] + "Z"; // trim ms to be strict
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch popular manga: ${response.status}`);
+      let items = [];
+
+      // Primary attempt: recently updated + follows
+      const primaryUrl = `${API}/manga?limit=60&includes[]=cover_art&contentRating[]=safe&hasAvailableChapters=true&availableTranslatedLanguage[]=en&updatedAtSince=${encodeURIComponent(
+        sinceISO
+      )}&order[followedCount]=desc`;
+
+      try {
+        const res = await fetch(primaryUrl);
+        if (res.ok) {
+          const data = await res.json();
+          items = data?.data || [];
+        } else {
+          const txt = await res.text().catch(() => "");
+          console.warn("Popular primary fetch failed:", res.status, txt);
+        }
+      } catch (e) {
+        console.warn("Popular primary fetch error:", e);
       }
 
-      const data = await response.json();
-      const items = data?.data || [];
+      // Fallback 1: latest uploaded chapter sorting
+      if (!items.length) {
+        const fb1Url = `${API}/manga?limit=60&includes[]=cover_art&contentRating[]=safe&hasAvailableChapters=true&availableTranslatedLanguage[]=en&order[latestUploadedChapter]=desc`;
+        try {
+          const res = await fetch(fb1Url);
+          if (res.ok) {
+            const data = await res.json();
+            items = data?.data || [];
+          } else {
+            const txt = await res.text().catch(() => "");
+            console.warn("Popular fb1 failed:", res.status, txt);
+          }
+        } catch (e) {
+          console.warn("Popular fb1 error:", e);
+        }
+      }
 
-      // Verify each item has at least 1 EN chapter in parallel
+      // Fallback 2: overall most-followed (no recency constraint)
+      if (!items.length) {
+        const fb2Url = `${API}/manga?limit=60&includes[]=cover_art&contentRating[]=safe&hasAvailableChapters=true&availableTranslatedLanguage[]=en&order[followedCount]=desc`;
+        try {
+          const res = await fetch(fb2Url);
+          if (res.ok) {
+            const data = await res.json();
+            items = data?.data || [];
+          } else {
+            const txt = await res.text().catch(() => "");
+            console.warn("Popular fb2 failed:", res.status, txt);
+          }
+        } catch (e) {
+          console.warn("Popular fb2 error:", e);
+        }
+      }
+
+      if (!items.length) {
+        throw new Error(
+          "Failed to fetch popular manga: 0 results after fallbacks"
+        );
+      }
+
       const checks = await Promise.allSettled(
         items.map((m) => hasEnglishChapters(m.id, 1))
       );
 
-      const processed = [];
+      let processed = [];
       for (let i = 0; i < items.length; i++) {
         const ok = checks[i].status === "fulfilled" && checks[i].value === true;
         if (!ok) continue;
@@ -77,8 +132,20 @@ function PopularPage() {
               ? Object.values(m.attributes.description || {})[0]
               : "") ||
             "No description available",
+          followedCount: m.attributes.followedCount || 0,
         });
       }
+
+      // De-duplicate by ID (in case of overlaps across fallbacks)
+      const seen = new Set();
+      processed = processed.filter((x) =>
+        seen.has(x.id) ? false : (seen.add(x.id), true)
+      );
+
+      // Ensure strongest “most read” signal by sorting by follows desc (in case fallback path was used)
+      processed.sort((a, b) => (b.followedCount || 0) - (a.followedCount || 0));
+      // Trim to a sane amount
+      processed = processed.slice(0, 40);
 
       setManga(processed);
     } catch (err) {
@@ -101,9 +168,7 @@ function PopularPage() {
   return (
     <div className="popular-page">
       <h1>Popular Series</h1>
-      <p className="subtitle">
-        Most followed series with available English chapters.
-      </p>
+      <p className="subtitle">Most read recently (last 30 days).</p>
       {loading ? (
         <Loader text="Loading popular series..." />
       ) : (

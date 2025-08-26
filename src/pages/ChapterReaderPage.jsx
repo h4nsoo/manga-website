@@ -8,7 +8,6 @@ function ChapterReaderPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get chapter and manga data from location state, if available
   const chapterData = location.state?.chapter;
   const mangaData = location.state?.manga;
 
@@ -50,7 +49,6 @@ function ChapterReaderPage() {
   useEffect(() => {
     const fetchMangaAndChapters = async () => {
       try {
-        // If we don't have manga data, fetch it
         if (!mangaData) {
           const mangaResponse = await fetch(
             `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}?includes[]=cover_art&includes[]=author`
@@ -123,13 +121,11 @@ function ChapterReaderPage() {
     fetchMangaAndChapters();
   }, [mangaId, mangaData, chapterId]);
 
-  // Fetch chapter pages
   useEffect(() => {
     const fetchChapterPages = async () => {
       try {
         setLoading(true);
         
-        // Fetch chapter info if not provided in location state
         let chapterToUse = chapterData;
         if (!chapterToUse) {
           const chapterResponse = await fetch(
@@ -151,7 +147,6 @@ function ChapterReaderPage() {
         }
         setChapterInfo(chapterToUse);
         
-        // Fetch the actual chapter pages
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/at-home/server/${chapterId}`
         );
