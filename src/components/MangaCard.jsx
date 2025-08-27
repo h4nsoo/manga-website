@@ -2,11 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/MangaCard.css";
 
-function MangaCard({ manga }) {
+function MangaCard({ manga, fromPage = "/" }) {
   return (
     <Link
       to={`/manga/${manga.id}`}
-      state={{ manga }} 
+      state={{ manga, fromPage }}
       className="manga-card"
     >
       <div className="manga-card-image-container">

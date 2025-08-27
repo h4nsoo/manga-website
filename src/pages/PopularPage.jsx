@@ -175,6 +175,7 @@ function PopularPage() {
         <MangaGrid
           manga={manga}
           emptyMessage="No popular manga available right now."
+          fromPage="/popular"
         />
       )}
     </div>

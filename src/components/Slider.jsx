@@ -271,6 +271,7 @@ const Slider = () => {
                     <p>{manga.description}</p>
                     <Link
                       to={`/manga/${manga.id}`}
+                      state={{ manga, fromPage: "/" }}
                       className="cssbuttons-io-button"
                     >
                       Read More

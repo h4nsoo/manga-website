@@ -7,7 +7,6 @@ import "../styles/HomePage.css";
 import Slider from "../components/Slider";
 
 function HomePage() {
-
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [mangaList, setMangaList] = useState([]);
@@ -207,6 +206,7 @@ function HomePage() {
           <MangaGrid
             manga={mangaList}
             emptyMessage="No featured manga found. Try refreshing the page."
+            fromPage="/"
           />
         )}
       </section>

@@ -63,7 +63,6 @@ main {
   bottom: 3px;
 }
 
-/* Hide scrollbar when not needed */
 .custom-scrollbar .simplebar-track.simplebar-vertical[style*="visibility: hidden"] {
   display: none;
 }

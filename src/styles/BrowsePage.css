@@ -83,12 +83,10 @@
   background-color: #ff79b0;
 }
 
-/* Force 6 items per row on the Browse page grid (desktop) */
 .browse-page .manga-grid {
   grid-template-columns: repeat(6, 1fr);
 }
 
-/* Responsive adjustments specifically for Browse page grid */
 @media (max-width: 1200px) {
   .browse-page .manga-grid {
     grid-template-columns: repeat(5, 1fr);

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
@@ -11,9 +11,13 @@ import Footer from "./components/Footer";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import "./styles/App.css";
+import useScrollToTop from "./hooks/useScrollToTop";
+import { useScroll } from "./contexts/ScrollContext";
 
 function App() {
-  const simpleBarRef = useRef(null);
+  const { scrollRef } = useScroll();
+
+  useScrollToTop(scrollRef);
 
   return (
     <div className="app-container">
@@ -23,7 +27,7 @@ function App() {
         autoHide={true}
         forceVisible={false}
         timeout={1500}
-        ref={simpleBarRef}
+        ref={scrollRef}
       >
         <main>
           <Routes>

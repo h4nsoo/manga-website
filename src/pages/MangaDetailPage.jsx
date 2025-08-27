@@ -2,18 +2,46 @@ import { useState, useEffect } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import "../styles/MangaDetailPage.css";
 import Loader from "../components/Loader";
-import MangaDebugger from "../components/MangaDebugger";
+import { useScroll } from "../contexts/ScrollContext";
 
 function MangaDetailPage() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { scrollToTop } = useScroll();
   const mangaFromProps = location.state?.manga;
 
   const [manga, setManga] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Helper function to determine where to navigate back to
+  const getBackDestination = () => {
+    // Check if we came from a specific page via state
+    if (location.state?.fromPage) {
+      return location.state.fromPage;
+    }
+
+    // Check if we came from browse or popular pages using window history
+    if (window.history.length > 1) {
+      const referrer = document.referrer;
+      if (referrer.includes("/browse")) {
+        return "/browse";
+      } else if (referrer.includes("/popular")) {
+        return "/popular";
+      }
+    }
+
+    // Default to browse page as it's most likely where manga discovery happens
+    return "/browse";
+  };
+
+  const handleBackNavigation = () => {
+    scrollToTop("auto");
+    const destination = getBackDestination();
+    navigate(destination);
+  };
 
   useEffect(() => {
     console.log("MangaDetailPage - Starting fetch for ID:", id);
@@ -172,22 +200,21 @@ function MangaDetailPage() {
     try {
       console.log("Fetching chapters for manga ID:", mangaId);
 
-      // Enhanced chapter fetching with multiple strategies
+      // Simplified but more reliable chapter fetching
       let allChapters = [];
       let offset = 0;
       const limit = 100;
       let hasMoreChapters = true;
 
-      // Try enhanced fetching first
-      while (hasMoreChapters && offset < 1000) {
-        // Cap at 1000 chapters for performance
+      // Try simplified approach first (more likely to work)
+      while (hasMoreChapters && offset < 500) {
+        // Reduced cap for better performance
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?` +
             `translatedLanguage[]=en&` +
-            `order[volume]=asc&order[chapter]=asc&` +
+            `order[chapter]=asc&` +
             `limit=${limit}&offset=${offset}&` +
-            `contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&` +
-            `includes[]=scanlation_group`
+            `contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica`
         );
 
         if (!response.ok) {
@@ -196,9 +223,9 @@ function MangaDetailPage() {
             response.status
           );
 
-          // If first batch fails, try simple fallback
+          // If first batch fails, try even simpler fallback
           if (offset === 0) {
-            console.log("Trying fallback chapter fetch method...");
+            console.log("Trying simplified chapter fetch method...");
             return await fetchChaptersFallback(mangaId);
           }
           break;
@@ -216,14 +243,14 @@ function MangaDetailPage() {
           break;
         }
 
-        // Filter and process chapters
+        // Filter and process chapters with less restrictive filtering
         const batchChapters = data.data
           .filter((chapter) => {
             return (
               chapter &&
               chapter.attributes &&
               chapter.attributes.translatedLanguage === "en"
-              // Removed the pages > 0 filter as it was too restrictive
+              // Removed pages filter - let all chapters through
             );
           })
           .map((chapter) => ({
@@ -253,10 +280,10 @@ function MangaDetailPage() {
         }
       }
 
-      // If no chapters found with enhanced method, try fallback
+      // If no chapters found with simplified method, try fallback
       if (allChapters.length === 0) {
         console.log(
-          "No chapters found with enhanced method, trying fallback..."
+          "No chapters found with simplified method, trying fallback..."
         );
         return await fetchChaptersFallback(mangaId);
       }
@@ -302,56 +329,98 @@ function MangaDetailPage() {
       setChapters(uniqueChapters);
     } catch (err) {
       console.error("Error fetching chapters:", err);
+      console.log("Chapter fetch error details:", {
+        mangaId,
+        errorMessage: err.message,
+        errorStack: err.stack,
+      });
       console.log("Trying fallback chapter fetch method...");
       await fetchChaptersFallback(mangaId);
     }
     // Remove the finally block since we're handling loading state in useEffect
   };
 
-  // Fallback method with simpler parameters
+  // Fallback method with simplest possible parameters
   const fetchChaptersFallback = async (mangaId) => {
     try {
       console.log("Using fallback chapter fetch for manga ID:", mangaId);
-      const response = await fetch(
+
+      // Try multiple fallback strategies
+      const fallbackUrls = [
+        // Most basic - just get chapters for the manga
         `${
           import.meta.env.VITE_BASE_URL
-        }/manga/${mangaId}/feed?translatedLanguage[]=en&order[chapter]=asc&limit=100`
-      );
+        }/manga/${mangaId}/feed?translatedLanguage[]=en&limit=500`,
+        // Even more basic - no language filter
+        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?limit=500`,
+        // Simplest possible
+        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed`,
+      ];
 
-      if (!response.ok) {
-        throw new Error("Fallback chapter fetch failed");
+      for (let i = 0; i < fallbackUrls.length; i++) {
+        try {
+          console.log(`Trying fallback URL ${i + 1}:`, fallbackUrls[i]);
+          const response = await fetch(fallbackUrls[i]);
+
+          if (!response.ok) {
+            console.warn(
+              `Fallback ${i + 1} failed with status:`,
+              response.status
+            );
+            continue;
+          }
+
+          const data = await response.json();
+
+          if (!data || !data.data || !Array.isArray(data.data)) {
+            console.warn(`Fallback ${i + 1} returned no data`);
+            continue;
+          }
+
+          const chapterList = data.data
+            .filter((chapter) => {
+              // Very lenient filtering
+              return (
+                chapter &&
+                chapter.attributes &&
+                chapter.id &&
+                // Prefer English but don't require it if none found
+                (chapter.attributes.translatedLanguage === "en" || i > 0)
+              );
+            })
+            .map((chapter) => ({
+              id: chapter.id,
+              number: chapter.attributes.chapter || "N/A",
+              title:
+                chapter.attributes.title ||
+                `Chapter ${chapter.attributes.chapter || "N/A"}`,
+              published: chapter.attributes.publishAt
+                ? new Date(chapter.attributes.publishAt).toLocaleDateString()
+                : "Unknown",
+              volume: chapter.attributes.volume || null,
+              pages: chapter.attributes.pages || 0,
+              scanlationGroup: "Unknown",
+            }));
+
+          if (chapterList.length > 0) {
+            console.log(
+              `Fallback ${i + 1} found ${
+                chapterList.length
+              } chapters for manga ${mangaId}`
+            );
+            setChapters(chapterList);
+            return;
+          }
+        } catch (err) {
+          console.warn(`Fallback ${i + 1} threw error:`, err);
+        }
       }
 
-      const data = await response.json();
-
-      if (!data || !data.data || !Array.isArray(data.data)) {
-        console.log("No chapters found in fallback");
-        setChapters([]);
-        return;
-      }
-
-      const chapterList = data.data
-        .filter((chapter) => chapter && chapter.attributes)
-        .map((chapter) => ({
-          id: chapter.id,
-          number: chapter.attributes.chapter || "N/A",
-          title:
-            chapter.attributes.title ||
-            `Chapter ${chapter.attributes.chapter || "N/A"}`,
-          published: new Date(
-            chapter.attributes.publishAt
-          ).toLocaleDateString(),
-          volume: chapter.attributes.volume || null,
-          pages: chapter.attributes.pages || 0,
-          scanlationGroup: "Unknown",
-        }));
-
-      console.log(
-        `Fallback found ${chapterList.length} chapters for manga ${mangaId}`
-      );
-      setChapters(chapterList);
+      // If all fallbacks failed
+      console.log("All fallback methods failed");
+      setChapters([]);
     } catch (err) {
-      console.error("Fallback chapter fetch also failed:", err);
+      console.error("Fallback chapter fetch failed completely:", err);
       setChapters([]);
     }
   };
@@ -385,8 +454,7 @@ function MangaDetailPage() {
 
   return (
     <div className="manga-detail-page">
-      <MangaDebugger />
-      <button className="back-button" onClick={() => navigate(-1)}>
+      <button className="back-button" onClick={handleBackNavigation}>
         ← Back
       </button>
 

@@ -124,7 +124,7 @@ function BrowsePage() {
               )}
 
               {displayedManga.length > 0 ? (
-                <MangaGrid manga={displayedManga} />
+                <MangaGrid manga={displayedManga} fromPage="/browse" />
               ) : (
                 <div className="no-results">
                   <p>No manga found matching your search.</p>
