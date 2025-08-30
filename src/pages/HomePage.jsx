@@ -5,9 +5,11 @@ import ErrorMessage from "../components/ErrorMessage";
 import MangaGrid from "../components/MangaGrid";
 import "../styles/HomePage.css";
 import Slider from "../components/Slider";
+import { useBookmarks } from "../contexts/BookmarkContext";
 
 function HomePage() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const { bookmarks } = useBookmarks();
 
   const [mangaList, setMangaList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +112,7 @@ function HomePage() {
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
           </svg>
           <h3>Latest Updates</h3>
-          <Link to="/latest" className="category-link">
+          <Link to="/latest-updates" className="category-link">
             View All
           </Link>
         </div>
@@ -150,7 +152,7 @@ function HomePage() {
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
-          <h3>Bookmarks</h3>
+          <h3>Bookmarks ({bookmarks.length})</h3>
           <Link to="/bookmarks" className="category-link">
             View All
           </Link>

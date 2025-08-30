@@ -1,0 +1,101 @@
+.bookmark-btn {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.8)
+  );
+  border: none;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.bookmark-btn:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0.95)
+  );
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.bookmark-btn.bookmarked {
+  background: linear-gradient(145deg, #ff6b6b, #ff5252);
+  color: white;
+  box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
+}
+
+.bookmark-btn.bookmarked:hover {
+  background: linear-gradient(145deg, #ff5252, #ff4444);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.5);
+}
+
+.bookmark-icon {
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.3));
+  opacity: 0.9;
+}
+
+.bookmark-btn:hover .bookmark-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.5));
+  opacity: 1;
+}
+
+.bookmark-btn.bookmarked .bookmark-icon {
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.4)) brightness(0.9);
+  opacity: 1;
+}
+
+.bookmark-btn.bookmarked .bookmark-icon.bookmarked {
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.4)) brightness(0.8)
+    contrast(1.2);
+}
+
+/* Add a subtle pulse animation for bookmarked items */
+.bookmark-btn.bookmarked {
+  animation: bookmarkPulse 2s infinite;
+}
+
+@keyframes bookmarkPulse {
+  0%,
+  100% {
+    box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    box-shadow: 0 3px 15px rgba(255, 107, 107, 0.6);
+  }
+}
+
+/* For card overlays */
+.manga-card {
+  position: relative;
+}
+
+.manga-card .bookmark-btn {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+.manga-card:hover .bookmark-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.manga-card .bookmark-btn.bookmarked {
+  opacity: 1;
+}

@@ -10,38 +10,110 @@ export const useScrollToTop = (scrollRef) => {
   const prevLocationRef = useRef();
 
   useEffect(() => {
-    // Only scroll to top if the location actually changed
-    if (prevLocationRef.current !== location.pathname) {
-      prevLocationRef.current = location.pathname;
+    // Always scroll to top when location changes, including initial load
+    const currentPath = location.pathname + location.search + location.hash;
 
-      // Immediate scroll to top for better performance
+    if (prevLocationRef.current !== currentPath) {
+      prevLocationRef.current = currentPath;
+
+      // Use requestAnimationFrame to ensure DOM is ready
       const scrollToTop = () => {
-        if (scrollRef.current) {
-          try {
-            // For SimpleBar, use direct scrollTop assignment for instant scroll
-            const scrollElement = scrollRef.current.getScrollElement();
-            if (scrollElement) {
-              scrollElement.scrollTop = 0;
-              scrollElement.scrollLeft = 0;
+        requestAnimationFrame(() => {
+          if (scrollRef.current) {
+            try {
+              // For SimpleBar, use direct scrollTop assignment for instant scroll
+              const scrollElement = scrollRef.current.getScrollElement();
+              if (scrollElement) {
+                // Temporarily disable smooth scroll behavior
+                const originalBehavior = scrollElement.style.scrollBehavior;
+                scrollElement.style.scrollBehavior = "auto";
+
+                scrollElement.scrollTop = 0;
+                scrollElement.scrollLeft = 0;
+
+                // Restore original scroll behavior
+                setTimeout(() => {
+                  scrollElement.style.scrollBehavior = originalBehavior;
+                }, 0);
+              }
+            } catch (error) {
+              // Fallback to window scroll if SimpleBar method fails
+              console.warn(
+                "SimpleBar scroll failed, using window scroll:",
+                error
+              );
+              // Temporarily disable smooth scroll for window
+              const originalBehavior =
+                document.documentElement.style.scrollBehavior;
+              document.documentElement.style.scrollBehavior = "auto";
+              window.scrollTo(0, 0);
+              setTimeout(() => {
+                document.documentElement.style.scrollBehavior =
+                  originalBehavior;
+              }, 0);
             }
-          } catch (error) {
-            // Fallback to window scroll if SimpleBar method fails
-            console.warn(
-              "SimpleBar scroll failed, using window scroll:",
-              error
-            );
+          } else {
+            // Fallback to window scroll if ref is not available
+            const originalBehavior =
+              document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = "auto";
             window.scrollTo(0, 0);
+            setTimeout(() => {
+              document.documentElement.style.scrollBehavior = originalBehavior;
+            }, 0);
           }
-        } else {
-          // Fallback to window scroll if ref is not available
-          window.scrollTo(0, 0);
-        }
+        });
       };
 
-      // Execute immediately, no timeout needed for instant scroll
+      // Execute immediately
       scrollToTop();
     }
-  }, [location.pathname, scrollRef]);
+  }, [location.pathname, location.search, location.hash, scrollRef]);
+
+  // Additional effect to handle initial page load
+  useEffect(() => {
+    // Scroll to top on initial mount
+    const handleInitialScroll = () => {
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          try {
+            const scrollElement = scrollRef.current.getScrollElement();
+            if (scrollElement) {
+              // Temporarily disable smooth scroll behavior
+              const originalBehavior = scrollElement.style.scrollBehavior;
+              scrollElement.style.scrollBehavior = "auto";
+
+              scrollElement.scrollTop = 0;
+              scrollElement.scrollLeft = 0;
+
+              // Restore original scroll behavior
+              setTimeout(() => {
+                scrollElement.style.scrollBehavior = originalBehavior;
+              }, 0);
+            }
+          } catch (error) {
+            const originalBehavior =
+              document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = "auto";
+            window.scrollTo(0, 0);
+            setTimeout(() => {
+              document.documentElement.style.scrollBehavior = originalBehavior;
+            }, 0);
+          }
+        } else {
+          const originalBehavior =
+            document.documentElement.style.scrollBehavior;
+          document.documentElement.style.scrollBehavior = "auto";
+          window.scrollTo(0, 0);
+          setTimeout(() => {
+            document.documentElement.style.scrollBehavior = originalBehavior;
+          }, 0);
+        }
+      });
+    };
+
+    handleInitialScroll();
+  }, []); // Empty dependency array for initial mount only
 };
 
 export default useScrollToTop;

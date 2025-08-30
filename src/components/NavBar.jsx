@@ -26,7 +26,6 @@ function Navbar() {
         >
           Browse
         </NavLink>
-
       </nav>
     </header>
   );

@@ -7,8 +7,15 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   height: 100%;
-  text-decoration: none;
   position: relative;
+}
+
+.manga-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .manga-card:hover {
@@ -21,7 +28,7 @@
 }
 
 .manga-card::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

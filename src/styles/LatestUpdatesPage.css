@@ -1,0 +1,45 @@
+.latest-updates-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.latest-updates-page h1 {
+  color: var(--accent-color);
+  text-align: center;
+  margin: 20px 0 10px;
+}
+
+.latest-updates-page .subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.latest-updates-page .manga-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .latest-updates-page .manga-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .latest-updates-page .manga-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .latest-updates-page .manga-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .latest-updates-page .manga-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
