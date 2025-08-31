@@ -1,5 +1,6 @@
 import { useBookmarks } from "../contexts/BookmarkContext";
 import "../styles/BookmarkButton.css";
+import bookmarkicon from "../assets/bookmark-white.png";
 
 const BookmarkButton = ({ manga, className = "" }) => {
   const { isBookmarked, toggleBookmark } = useBookmarks();
@@ -18,7 +19,7 @@ const BookmarkButton = ({ manga, className = "" }) => {
       title={bookmarked ? "Remove from bookmarks" : "Add to bookmarks"}
     >
       <img
-        src="/bookmark-white.png"
+        src={bookmarkicon}
         alt="bookmark"
         className={`bookmark-icon ${bookmarked ? "bookmarked" : ""}`}
         width="20"

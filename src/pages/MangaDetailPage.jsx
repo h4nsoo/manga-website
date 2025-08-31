@@ -33,7 +33,6 @@ function MangaDetailPage() {
       }
     }
 
-    // Default to browse page as it's most likely where manga discovery happens
     return "/browse";
   };
 
@@ -53,7 +52,6 @@ function MangaDetailPage() {
       setManga(mangaFromProps);
     }
 
-    // Run both fetches and only set loading to false when both are done
     Promise.all([fetchMangaDetails(id), fetchChapters(id)]).finally(() => {
       setLoading(false);
     });
@@ -63,7 +61,6 @@ function MangaDetailPage() {
     try {
       console.log("Fetching manga details for ID:", mangaId);
 
-      // Add retry logic and better error handling
       let response;
       let retryCount = 0;
       const maxRetries = 3;
@@ -100,7 +97,6 @@ function MangaDetailPage() {
 
       const data = await response.json();
 
-      // Enhanced validation
       if (!data || !data.data || !data.data.id) {
         throw new Error("Invalid or incomplete data from API");
       }
@@ -120,7 +116,6 @@ function MangaDetailPage() {
         (rel) => rel.type === "artist"
       );
 
-      // Better author name extraction
       let authorName = "Unknown Author";
       if (authorRel?.attributes?.name) {
         authorName = authorRel.attributes.name;
@@ -128,10 +123,8 @@ function MangaDetailPage() {
         authorName = artistRel.attributes.name;
       }
 
-      // Enhanced title extraction
       let title = "Untitled Manga";
       if (mangaData.attributes?.title) {
-        // Try multiple language fallbacks
         title =
           mangaData.attributes.title.en ||
           mangaData.attributes.title["en-us"] ||
@@ -141,7 +134,6 @@ function MangaDetailPage() {
           title;
       }
 
-      // Enhanced description extraction
       let description = "No description available";
       if (mangaData.attributes?.description) {
         description =
@@ -151,7 +143,6 @@ function MangaDetailPage() {
           description;
       }
 
-      // More robust genre extraction
       let genres = [];
       if (
         mangaData.attributes?.tags &&
@@ -168,7 +159,7 @@ function MangaDetailPage() {
               null
             );
           })
-          .filter((name) => name && name.trim()); // Remove null/empty values
+          .filter((name) => name && name.trim());
       }
 
       const completeManga = {
@@ -188,25 +179,21 @@ function MangaDetailPage() {
     } catch (err) {
       console.error("Error fetching manga details:", err);
 
-      // If we already have some manga data from props, keep it
       if (!manga && !mangaFromProps) {
         setError(`Failed to load manga details: ${err.message}`);
       }
     }
-    // Remove the finally block since we're handling loading state in useEffect
   };
 
   const fetchChapters = async (mangaId) => {
     try {
       console.log("Fetching chapters for manga ID:", mangaId);
 
-      // Simplified but more reliable chapter fetching
       let allChapters = [];
       let offset = 0;
       const limit = 100;
       let hasMoreChapters = true;
 
-      // Try simplified approach first (more likely to work)
       while (hasMoreChapters && offset < 500) {
         // Reduced cap for better performance
         const response = await fetch(

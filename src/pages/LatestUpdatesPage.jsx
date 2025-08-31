@@ -16,7 +16,7 @@ function LatestUpdatesPage() {
 
   const getCoverImageUrl = (mangaId, fileName) => {
     if (!fileName) return "https://via.placeholder.com/300x400?text=No+Cover";
-    return `https://uploads.mangadx.org/covers/${mangaId}/${fileName}`;
+    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
   };
 
   async function hasEnglishChapters(mangaId, minCount = 1) {
