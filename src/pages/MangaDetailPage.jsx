@@ -274,15 +274,18 @@ function MangaDetailPage() {
             }));
 
           allChapters = allChapters.concat(batchChapters);
+          const total = data.total || 0;
           console.log(
-            `Fetched ${batchChapters.length} chapters at offset ${offset}, total so far: ${allChapters.length}`
+            `Fetched ${batchChapters.length} chapters at offset ${offset}, total so far: ${allChapters.length} / ${total}`
           );
 
-          // Check if we have more chapters to fetch
-          if (data.data.length < limit) {
+          // Use API's total count as the authoritative stop condition
+          offset += limit;
+          if (offset >= total || data.data.length === 0) {
             hasMoreChapters = false;
           } else {
-            offset += limit;
+            // Small delay to avoid MangaDex rate limiting
+            await new Promise((resolve) => setTimeout(resolve, 300));
           }
         } catch (fetchErr) {
           console.error("Error in fetch loop:", fetchErr);
@@ -358,80 +361,93 @@ function MangaDetailPage() {
     }
   };
 
-  // Fallback method with simplest possible parameters
+  // Fallback method with simplest possible parameters — now with pagination
   const fetchChaptersFallback = async (mangaId) => {
     try {
       console.log("Using fallback chapter fetch for manga ID:", mangaId);
 
       // Try multiple fallback strategies
-      const fallbackUrls = [
+      const fallbackBaseUrls = [
         // Most comprehensive - all content ratings + includes
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/manga/${mangaId}/feed?translatedLanguage[]=en&limit=100&includes[]=scanlation_group`,
+        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?translatedLanguage[]=en&includes[]=scanlation_group`,
         // Basic with just English
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/manga/${mangaId}/feed?translatedLanguage[]=en&limit=100`,
+        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?translatedLanguage[]=en`,
         // Even more basic - no language filter
-        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?limit=100`,
+        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed`,
       ];
 
-      for (let i = 0; i < fallbackUrls.length; i++) {
+      for (let i = 0; i < fallbackBaseUrls.length; i++) {
         try {
-          console.log(`Trying fallback URL ${i + 1}:`, fallbackUrls[i]);
-          const response = await fetch(fallbackUrls[i]);
+          console.log(`Trying fallback strategy ${i + 1}...`);
+          let allChapters = [];
+          let offset = 0;
+          const limit = 100;
+          let hasMore = true;
 
-          if (!response.ok) {
-            console.warn(
-              `Fallback ${i + 1} failed with status:`,
-              response.status
-            );
-            continue;
-          }
+          while (hasMore && offset < 10000) {
+            const url = `${fallbackBaseUrls[i]}&limit=${limit}&offset=${offset}&order[chapter]=asc`;
+            const response = await fetch(url);
 
-          const data = await response.json();
-
-          if (!data || !data.data || !Array.isArray(data.data)) {
-            console.warn(`Fallback ${i + 1} returned no data`);
-            continue;
-          }
-
-          const chapterList = data.data
-            .filter((chapter) => {
-              // Very lenient filtering
-              return (
-                chapter &&
-                chapter.attributes &&
-                chapter.id &&
-                // Prefer English but don't require it if none found
-                (chapter.attributes.translatedLanguage === "en" || i > 1)
+            if (!response.ok) {
+              console.warn(
+                `Fallback ${i + 1} failed with status:`,
+                response.status
               );
-            })
-            .map((chapter) => ({
-              id: chapter.id,
-              number: chapter.attributes.chapter || "N/A",
-              title:
-                chapter.attributes.title ||
-                `Chapter ${chapter.attributes.chapter || "N/A"}`,
-              published: chapter.attributes.publishAt
-                ? new Date(chapter.attributes.publishAt).toLocaleDateString()
-                : "Unknown",
-              volume: chapter.attributes.volume || null,
-              pages: chapter.attributes.pages || 0,
-              scanlationGroup:
-                chapter.relationships?.find(
-                  (rel) => rel.type === "scanlation_group"
-                )?.attributes?.name || "Unknown",
-            }));
+              break;
+            }
 
-          if (chapterList.length > 0) {
+            const data = await response.json();
+
+            if (!data || !data.data || !Array.isArray(data.data) || data.data.length === 0) {
+              hasMore = false;
+              break;
+            }
+
+            const batchChapters = data.data
+              .filter((chapter) => {
+                return (
+                  chapter &&
+                  chapter.attributes &&
+                  chapter.id &&
+                  (chapter.attributes.translatedLanguage === "en" || i > 1)
+                );
+              })
+              .map((chapter) => ({
+                id: chapter.id,
+                number: chapter.attributes.chapter || "N/A",
+                title:
+                  chapter.attributes.title ||
+                  `Chapter ${chapter.attributes.chapter || "N/A"}`,
+                published: chapter.attributes.publishAt
+                  ? new Date(chapter.attributes.publishAt).toLocaleDateString()
+                  : "Unknown",
+                volume: chapter.attributes.volume || null,
+                pages: chapter.attributes.pages || 0,
+                scanlationGroup:
+                  chapter.relationships?.find(
+                    (rel) => rel.type === "scanlation_group"
+                  )?.attributes?.name || "Unknown",
+              }));
+
+            allChapters = allChapters.concat(batchChapters);
+            const total = data.total || 0;
             console.log(
-              `Fallback ${i + 1} found ${
-                chapterList.length
-              } chapters for manga ${mangaId}`
+              `Fallback ${i + 1}: fetched ${batchChapters.length} at offset ${offset}, total so far: ${allChapters.length} / ${total}`
             );
-            setChapters(chapterList);
+
+            offset += limit;
+            if (offset >= total || data.data.length === 0) {
+              hasMore = false;
+            } else {
+              await new Promise((resolve) => setTimeout(resolve, 300));
+            }
+          }
+
+          if (allChapters.length > 0) {
+            console.log(
+              `Fallback ${i + 1} found ${allChapters.length} chapters for manga ${mangaId}`
+            );
+            setChapters(allChapters);
             return;
           }
         } catch (err) {
