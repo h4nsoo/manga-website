@@ -114,7 +114,9 @@ const Slider = () => {
 
         let coverImage = "https://placehold.co/600x900";
         if (coverRelationship?.attributes?.fileName) {
-          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          // Use .512.jpg for better quality on slider while keeping reasonable size
+          const fileName = coverRelationship.attributes.fileName;
+          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.512.jpg`;
         }
 
         const rawDesc = manga.attributes.description;
@@ -138,6 +140,21 @@ const Slider = () => {
       } else {
         setPopularManga(processed);
         setCurrentSlide(0);
+
+        // Preload first image for LCP optimization
+        if (processed.length > 0) {
+          const firstImage = new Image();
+          firstImage.fetchPriority = "high";
+          firstImage.src = processed[0].coverImage;
+
+          // Also add link preload to head
+          const link = document.createElement("link");
+          link.rel = "preload";
+          link.as = "image";
+          link.href = processed[0].coverImage;
+          link.fetchPriority = "high";
+          document.head.appendChild(link);
+        }
       }
       setLoading(false);
     } catch (err) {
@@ -182,7 +199,9 @@ const Slider = () => {
 
         let coverImage = "https://placehold.co/600x900";
         if (coverRelationship?.attributes?.fileName) {
-          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          // Use .512.jpg for better quality on slider while keeping reasonable size
+          const fileName = coverRelationship.attributes.fileName;
+          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.512.jpg`;
         }
 
         const rawDesc = manga.attributes.description;
@@ -263,9 +282,16 @@ const Slider = () => {
                   className={`slide ${index === currentSlide ? "active" : ""}`}
                   style={{
                     transform: `translateX(${(index - currentSlide) * 100}%)`,
-                    backgroundImage: `url(${manga.coverImage})`,
                   }}
                 >
+                  <img
+                    src={manga.coverImage}
+                    alt={manga.title}
+                    className="slide-background-image"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchpriority={index === 0 ? "high" : "low"}
+                    decoding={index === 0 ? "sync" : "async"}
+                  />
                   <div className="slide-content">
                     <h2>{manga.title}</h2>
                     <p>{manga.description}</p>

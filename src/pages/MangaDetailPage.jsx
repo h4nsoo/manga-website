@@ -189,94 +189,124 @@ function MangaDetailPage() {
     try {
       console.log("Fetching chapters for manga ID:", mangaId);
 
+      // Use feed endpoint with optimized parameters
       let allChapters = [];
       let offset = 0;
-      const limit = 100;
+      const limit = 100; // Reduced limit to prevent timeouts/errors
       let hasMoreChapters = true;
+      let retryCount = 0;
 
-      while (hasMoreChapters && offset < 500) {
-        // Reduced cap for better performance
-        const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?` +
-            `translatedLanguage[]=en&` +
-            `order[chapter]=asc&` +
-            `limit=${limit}&offset=${offset}&` +
-            `contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica`
-        );
-
-        if (!response.ok) {
-          console.warn(
-            `Failed to fetch chapters at offset ${offset}:`,
-            response.status
+      while (hasMoreChapters && offset < 10000) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?` +
+              `translatedLanguage[]=en&` +
+              `order[chapter]=asc&` +
+              `limit=${limit}&offset=${offset}&` +
+              `contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic&` +
+              `includes[]=scanlation_group&includes[]=user`
           );
 
-          // If first batch fails, try even simpler fallback
+          if (!response.ok) {
+            console.warn(
+              `Failed to fetch chapters at offset ${offset}:`,
+              response.status
+            );
+
+            // Retry logic for 500/503 errors
+            if (
+              (response.status === 500 || response.status === 503) &&
+              retryCount < 3
+            ) {
+              console.log(`Retrying fetch (attempt ${retryCount + 1})...`);
+              retryCount++;
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              continue;
+            }
+
+            // If first batch fails, try fallback
+            if (offset === 0) {
+              console.log("Trying simplified chapter fetch method...");
+              return await fetchChaptersFallback(mangaId);
+            }
+            break;
+          }
+
+          retryCount = 0; // Reset retry count on success
+          const data = await response.json();
+
+          if (
+            !data ||
+            !data.data ||
+            !Array.isArray(data.data) ||
+            data.data.length === 0
+          ) {
+            hasMoreChapters = false;
+            break;
+          }
+
+          // Filter and process chapters
+          const batchChapters = data.data
+            .filter((chapter) => {
+              return (
+                chapter &&
+                chapter.attributes &&
+                chapter.attributes.translatedLanguage === "en" &&
+                chapter.id
+              );
+            })
+            .map((chapter) => ({
+              id: chapter.id,
+              number: chapter.attributes.chapter || "N/A",
+              title:
+                chapter.attributes.title ||
+                `Chapter ${chapter.attributes.chapter || "N/A"}`,
+              published: chapter.attributes.publishAt
+                ? new Date(chapter.attributes.publishAt).toLocaleDateString()
+                : "Unknown",
+              volume: chapter.attributes.volume || null,
+              pages: chapter.attributes.pages || 0,
+              scanlationGroup:
+                chapter.relationships?.find(
+                  (rel) => rel.type === "scanlation_group"
+                )?.attributes?.name || "Unknown",
+              externalUrl: chapter.attributes.externalUrl || null,
+            }));
+
+          allChapters = allChapters.concat(batchChapters);
+          console.log(
+            `Fetched ${batchChapters.length} chapters at offset ${offset}, total so far: ${allChapters.length}`
+          );
+
+          // Check if we have more chapters to fetch
+          if (data.data.length < limit) {
+            hasMoreChapters = false;
+          } else {
+            offset += limit;
+          }
+        } catch (fetchErr) {
+          console.error("Error in fetch loop:", fetchErr);
           if (offset === 0) {
-            console.log("Trying simplified chapter fetch method...");
             return await fetchChaptersFallback(mangaId);
           }
           break;
-        }
-
-        const data = await response.json();
-
-        if (
-          !data ||
-          !data.data ||
-          !Array.isArray(data.data) ||
-          data.data.length === 0
-        ) {
-          hasMoreChapters = false;
-          break;
-        }
-
-        // Filter and process chapters with less restrictive filtering
-        const batchChapters = data.data
-          .filter((chapter) => {
-            return (
-              chapter &&
-              chapter.attributes &&
-              chapter.attributes.translatedLanguage === "en"
-              // Removed pages filter - let all chapters through
-            );
-          })
-          .map((chapter) => ({
-            id: chapter.id,
-            number: chapter.attributes.chapter || "N/A",
-            title:
-              chapter.attributes.title ||
-              `Chapter ${chapter.attributes.chapter || "N/A"}`,
-            published: new Date(
-              chapter.attributes.publishAt
-            ).toLocaleDateString(),
-            volume: chapter.attributes.volume || null,
-            pages: chapter.attributes.pages || 0,
-            scanlationGroup:
-              chapter.relationships?.find(
-                (rel) => rel.type === "scanlation_group"
-              )?.attributes?.name || "Unknown",
-          }));
-
-        allChapters = allChapters.concat(batchChapters);
-
-        // Check if we have more chapters to fetch
-        if (data.data.length < limit) {
-          hasMoreChapters = false;
-        } else {
-          offset += limit;
         }
       }
 
       // If no chapters found with simplified method, try fallback
       if (allChapters.length === 0) {
-        console.log(
-          "No chapters found with simplified method, trying fallback..."
-        );
+        console.log("No chapters found with main method, trying fallback...");
         return await fetchChaptersFallback(mangaId);
       }
 
       // Remove duplicates and sort by chapter number
       const uniqueChapters = allChapters.reduce((acc, current) => {
+        // Don't deduplicate if number is N/A
+        if (current.number === "N/A") {
+          acc.push(current);
+          return acc;
+        }
+
         const existing = acc.find(
           (chapter) =>
             chapter.number === current.number &&
@@ -285,19 +315,26 @@ function MangaDetailPage() {
 
         if (!existing) {
           acc.push(current);
-        } else if (current.pages > existing.pages) {
-          // Keep the chapter with more pages if duplicate
-          const index = acc.indexOf(existing);
-          acc[index] = current;
+        } else {
+          // If duplicate, prefer the one with pages (not external)
+          if (existing.pages === 0 && current.pages > 0) {
+            const index = acc.indexOf(existing);
+            acc[index] = current;
+          }
         }
 
         return acc;
       }, []);
 
-      // Sort chapters properly (handle both numeric and string chapter numbers)
+      // Sort chapters properly
       uniqueChapters.sort((a, b) => {
-        const aNum = parseFloat(a.number) || 0;
-        const bNum = parseFloat(b.number) || 0;
+        const aNum = parseFloat(a.number);
+        const bNum = parseFloat(b.number);
+
+        // Handle N/A or non-numeric chapters (put them at the end)
+        if (isNaN(aNum) && isNaN(bNum)) return 0;
+        if (isNaN(aNum)) return 1;
+        if (isNaN(bNum)) return -1;
 
         // First sort by volume if available
         if (a.volume && b.volume) {
@@ -316,15 +353,9 @@ function MangaDetailPage() {
       setChapters(uniqueChapters);
     } catch (err) {
       console.error("Error fetching chapters:", err);
-      console.log("Chapter fetch error details:", {
-        mangaId,
-        errorMessage: err.message,
-        errorStack: err.stack,
-      });
       console.log("Trying fallback chapter fetch method...");
       await fetchChaptersFallback(mangaId);
     }
-    // Remove the finally block since we're handling loading state in useEffect
   };
 
   // Fallback method with simplest possible parameters
@@ -334,14 +365,16 @@ function MangaDetailPage() {
 
       // Try multiple fallback strategies
       const fallbackUrls = [
-        // Most basic - just get chapters for the manga
+        // Most comprehensive - all content ratings + includes
         `${
           import.meta.env.VITE_BASE_URL
-        }/manga/${mangaId}/feed?translatedLanguage[]=en&limit=500`,
+        }/manga/${mangaId}/feed?translatedLanguage[]=en&limit=100&includes[]=scanlation_group`,
+        // Basic with just English
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/manga/${mangaId}/feed?translatedLanguage[]=en&limit=100`,
         // Even more basic - no language filter
-        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?limit=500`,
-        // Simplest possible
-        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed`,
+        `${import.meta.env.VITE_BASE_URL}/manga/${mangaId}/feed?limit=100`,
       ];
 
       for (let i = 0; i < fallbackUrls.length; i++) {
@@ -372,7 +405,7 @@ function MangaDetailPage() {
                 chapter.attributes &&
                 chapter.id &&
                 // Prefer English but don't require it if none found
-                (chapter.attributes.translatedLanguage === "en" || i > 0)
+                (chapter.attributes.translatedLanguage === "en" || i > 1)
               );
             })
             .map((chapter) => ({
@@ -386,7 +419,10 @@ function MangaDetailPage() {
                 : "Unknown",
               volume: chapter.attributes.volume || null,
               pages: chapter.attributes.pages || 0,
-              scanlationGroup: "Unknown",
+              scanlationGroup:
+                chapter.relationships?.find(
+                  (rel) => rel.type === "scanlation_group"
+                )?.attributes?.name || "Unknown",
             }));
 
           if (chapterList.length > 0) {

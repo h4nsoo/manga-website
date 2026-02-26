@@ -29,7 +29,6 @@ function SearchBox({ onSearch, getCoverImageUrl }) {
 
         if (data.data && data.data.length > 0) {
           const formattedResults = data.data.map((item) => {
-
             const coverRelationship = item.relationships.find(
               (rel) => rel.type === "cover_art"
             );
@@ -116,9 +115,7 @@ function SearchBox({ onSearch, getCoverImageUrl }) {
             if (onSearch) onSearch(null);
           }}
           aria-label="Clear search"
-        >
-
-        </button>
+        ></button>
       )}
     </form>
   );

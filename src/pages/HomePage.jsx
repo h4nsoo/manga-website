@@ -32,7 +32,8 @@ function HomePage() {
       setError(null);
 
       const response = await fetch(
-        `${BASE_URL}/manga?limit=18&includes[]=cover_art&contentRating[]=safe`
+        `${BASE_URL}/manga?limit=18&includes[]=cover_art&contentRating[]=safe`,
+        { priority: "low" } // Lower priority since slider is more important for LCP
       );
 
       if (!response.ok) {
@@ -63,7 +64,9 @@ function HomePage() {
           coverRelationship.attributes &&
           coverRelationship.attributes.fileName
         ) {
-          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${coverRelationship.attributes.fileName}`;
+          // Use .256.jpg for smaller thumbnail size to improve loading
+          const fileName = coverRelationship.attributes.fileName;
+          coverImage = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`;
         }
 
         return {

@@ -16,6 +16,10 @@ function MangaCard({ manga, fromPage = "/" }) {
             src={manga.coverImage}
             alt={manga.title}
             className="manga-card-image"
+            loading="lazy"
+            width="200"
+            height="300"
+            decoding="async"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src =
