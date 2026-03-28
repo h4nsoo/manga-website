@@ -7,29 +7,33 @@
 
 .reader-header {
   padding: 1rem 1.5rem;
-  background-color: var(--bg-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   gap: 1.5rem;
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.back-button {
+.reader-header .back-button {
   background-color: transparent;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
   flex-shrink: 0;
   font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0;
 }
 
-.back-button:hover {
-  background-color: var(--accent-color);
+.reader-header .back-button:hover {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
 }
 
 .chapter-info {
@@ -41,7 +45,7 @@
 .manga-title {
   margin: 0;
   font-size: 0.9rem;
-  color: #f0f0f0;
+  color: var(--text-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -50,6 +54,7 @@
 .chapter-title {
   margin: 0;
   font-size: 1.1rem;
+  color: var(--text-primary);
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -59,29 +64,35 @@
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background-color: var(--bg-secondary);
+  background-color: var(--surface-1);
   margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .chapter-nav-button {
-  background-color: #4a6fa5;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  font-size: 0.9rem;
 }
 
 .chapter-nav-button:hover:not(:disabled) {
-  background-color: #3d5c8c;
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
 }
 
 .chapter-nav-button:disabled {
-  background-color: #ccc;
+  background-color: var(--surface-1);
+  color: var(--text-muted);
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
+  border-color: var(--border-subtle);
 }
 
 .reader-content {
@@ -90,13 +101,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--bg-primary); 
+  background-color: var(--bg-primary);
   width: 100%;
 }
 
 .page-container {
   position: relative;
-  margin-bottom: 0; 
+  margin-bottom: 0;
   background-color: transparent;
   padding: 0;
   box-shadow: none;
@@ -111,11 +122,10 @@
   border-radius: 0;
 }
 
-
 .reader-footer {
   padding: 1rem;
-  background-color: white;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-1);
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -129,6 +139,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  color: var(--text-secondary);
 }
 
 /* Responsive styles */

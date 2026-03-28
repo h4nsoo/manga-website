@@ -2,19 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0;
-  animation: fadeIn 0.8s ease-out;
   width: 100%;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .quick-categories {
@@ -30,27 +18,24 @@
   border-radius: 12px;
   padding: 25px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .category-card:hover {
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .category-card svg {
   color: var(--accent-color);
   margin-bottom: 15px;
-  transition: transform 0.3s ease;
-}
-
-.category-card:hover svg {
-  transform: scale(1.2);
 }
 
 .category-card h3 {
   margin-bottom: 15px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .category-link {
@@ -60,8 +45,9 @@
   padding: 5px 15px;
   border-radius: 20px;
   border: 1px solid var(--accent-color);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
   display: inline-block;
+  font-size: 0.9rem;
 }
 
 .category-link:hover {
@@ -97,16 +83,6 @@
   width: 60px;
   height: 3px;
   background: var(--accent-color);
-  animation: expandWidth 0.8s ease-out forwards;
-}
-
-@keyframes expandWidth {
-  from {
-    width: 0;
-  }
-  to {
-    width: 60px;
-  }
 }
 
 .see-all-link {
@@ -116,11 +92,11 @@
   align-items: center;
   gap: 5px;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .see-all-link:hover {
-  transform: translateX(5px);
+  color: #ff79b0;
 }
 
 /* Responsive adjustments */

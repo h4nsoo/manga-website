@@ -18,8 +18,8 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 3px;
+  width: 60px;
+  height: 2px;
   background: var(--accent-color);
 }
 
@@ -38,7 +38,7 @@
   padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .clear-search-btn:hover {
@@ -56,7 +56,7 @@
 .no-results {
   text-align: center;
   padding: 50px 20px;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   margin: 30px auto;
   max-width: 600px;
@@ -73,14 +73,14 @@
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 .browse-btn:hover {
-  background-color: #ff79b0;
+  background-color: var(--accent-hover, #e63571);
 }
 
 .browse-page .manga-grid {
@@ -114,11 +114,11 @@
 .error-message {
   text-align: center;
   padding: 15px;
-  background-color: rgba(255, 64, 64, 0.1);
-  border-left: 4px solid #ff4040;
+  background-color: rgba(255, 64, 64, 0.08);
+  border-left: 3px solid #ff4040;
   border-radius: 4px;
   margin-bottom: 20px;
-  color: #ff6060;
+  color: #ff8080;
 }
 
 @media (max-width: 768px) {

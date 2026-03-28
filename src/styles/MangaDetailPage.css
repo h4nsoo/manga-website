@@ -6,25 +6,38 @@
 
 .loading-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 60vh;
   font-size: 1.2rem;
+  gap: 1rem;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 1rem;
+  color: var(--text-secondary);
 }
 
 .manga-header {
   display: flex;
   gap: 30px;
   margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .manga-cover {
   width: 230px;
   height: auto;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
 }
 
 .manga-info {
@@ -33,95 +46,151 @@
 
 .manga-info h1 {
   margin-top: 0;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.manga-info p {
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.manga-info p strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .genres {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .genre-tag {
-  background-color: #f0f0f0;
-  color: #333;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.9rem;
+  background-color: var(--surface-2);
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: 1px solid var(--border-medium);
+  letter-spacing: 0.3px;
 }
 
 .manga-description {
   margin-bottom: 30px;
 }
 
+.manga-description h2 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.manga-description p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
 .manga-chapters-section h2 {
   margin-bottom: 20px;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .chapters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
 }
 
 .chapter-card {
-  background-color: #f8f8f8;
+  background-color: var(--surface-1);
   border-radius: 6px;
   overflow: hidden;
-  transition: 0.3s ease all;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  border: 1px solid var(--border-subtle);
 }
 
 .chapter-card:hover {
-  background-color: pink;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-hover);
+  border-color: var(--accent-color);
 }
 
 .chapter-link {
   display: block;
-  padding: 15px;
+  padding: 14px 16px;
   color: inherit;
   text-decoration: none;
 }
 
 .chapter-number {
-  color: #333;
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 5px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
 }
 
 .chapter-title {
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 8px;
+  font-size: 0.85rem;
 }
 
 .chapter-meta {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .chapter-date {
-  font-size: 0.85rem;
-  color: #888;
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .chapter-pages {
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .chapter-group {
-  font-size: 0.8rem;
-  color: #999;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  opacity: 0.7;
   font-style: italic;
 }
 
 .back-button {
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.back-button:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-color);
+}
+
+.manga-chapters-section ul {
+  color: var(--text-muted);
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.manga-chapters-section ul li {
+  margin-bottom: 4px;
 }
 
 @media (max-width: 768px) {
@@ -135,7 +204,11 @@
     width: 180px;
   }
 
+  .genres {
+    justify-content: center;
+  }
+
   .chapters-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }

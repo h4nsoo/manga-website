@@ -4,6 +4,27 @@ import "../styles/MangaDetailPage.css";
 import Loader from "../components/Loader";
 import { useScroll } from "../contexts/ScrollContext";
 
+// Strip markdown links [text](url) → text, and clean up raw URLs
+function stripMarkdown(text) {
+  if (!text) return text;
+  // Convert [text](url) to text
+  let cleaned = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  // Remove standalone bare URLs
+  cleaned = cleaned.replace(/https?:\/\/\S+/g, '');
+  // Clean up leftover dashes and whitespace
+  cleaned = cleaned.replace(/\s*[–—-]\s*$/gm, '');
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  return cleaned.trim();
+}
+
+// Check if chapter title is just a repeat of the chapter number
+function isRedundantTitle(title, number) {
+  if (!title || !number) return true;
+  const normalized = title.toLowerCase().trim();
+  const chapterStr = `chapter ${number}`.toLowerCase();
+  return normalized === chapterStr || normalized === number.toString();
+}
+
 function MangaDetailPage() {
   const { id } = useParams();
   const location = useLocation();
@@ -526,7 +547,7 @@ function MangaDetailPage() {
 
       <div className="manga-description">
         <h2>Description</h2>
-        <p>{manga.description}</p>
+        <p>{stripMarkdown(manga.description)}</p>
       </div>
 
       <div className="manga-chapters-section">
@@ -544,7 +565,9 @@ function MangaDetailPage() {
                     {chapter.volume && `Vol. ${chapter.volume} `}
                     Chapter {chapter.number}
                   </div>
-                  <div className="chapter-title">{chapter.title}</div>
+                  {!isRedundantTitle(chapter.title, chapter.number) && (
+                    <div className="chapter-title">{chapter.title}</div>
+                  )}
                   <div className="chapter-meta">
                     <span className="chapter-date">{chapter.published}</span>
                     {chapter.pages > 0 && (

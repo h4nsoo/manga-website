@@ -18,34 +18,37 @@ body {
 
 .slider-heading {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin-bottom: 30px;
   position: relative;
   padding-bottom: 10px;
   display: inline-block;
   left: 50%;
   transform: translateX(-50%);
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .slider-heading::after {
   content: "";
   position: absolute;
   bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
   background: var(--accent-color);
 }
 
 .slider-container {
   position: relative;
   max-width: 1200px;
-  height: 70vh;
-  min-height: 500px;
+  height: 65vh;
+  min-height: 480px;
   margin: 0 auto;
   overflow: hidden;
   border-radius: 8px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .slides-wrapper {
@@ -103,18 +106,19 @@ body {
 }
 
 .slide-content h2 {
-  font-size: 2.8rem;
-  margin-bottom: 20px;
+  font-size: 2.6rem;
+  margin-bottom: 16px;
   font-weight: 800;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
 }
 
 .slide-content p {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.6;
-  margin-bottom: 30px;
-  opacity: 0.9;
-  max-width: 600px;
+  margin-bottom: 28px;
+  opacity: 0.85;
+  max-width: 560px;
 }
 
 /* From Uiverse.io by adamgiebl - Modified to match site theme */
@@ -141,7 +145,7 @@ body {
   min-width: 180px;
   width: auto;
   max-width: 240px;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .cssbuttons-io-button .icon {
@@ -160,7 +164,7 @@ body {
 }
 
 .cssbuttons-io-button:hover {
-  background: #ff79b0;
+  background: var(--accent-hover, #e63571);
 }
 
 .cssbuttons-io-button:hover .icon {
@@ -185,10 +189,10 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.12);
   border: none;
   color: white;
   display: flex;
@@ -196,47 +200,47 @@ body {
   justify-content: center;
   cursor: pointer;
   z-index: 2;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .slider-arrow:hover {
-  background-color: var(--accent-color);
+  background-color: rgba(255, 64, 129, 0.7);
 }
 
 .slider-prev {
-  left: 30px;
+  left: 20px;
 }
 
 .slider-next {
-  right: 30px;
+  right: 20px;
 }
 
 .slider-indicators {
   position: absolute;
-  bottom: 60px;
+  bottom: 50px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 12px;
+  gap: 10px;
   z-index: 2;
 }
 
 .slider-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.4);
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
-  margin: 0 4px;
+  margin: 0 3px;
 }
 
 .slider-dot.active {
   background-color: var(--accent-color);
-  transform: scale(1.4);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  width: 24px;
+  border-radius: 4px;
 }
 
 .slider-loading,
@@ -264,17 +268,17 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 .retry-btn:hover {
-  background-color: var(--accent-dark);
+  background-color: var(--accent-hover, #e63571);
 }
 
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .slider-container {
-    height: 60vh;
+    height: 55vh;
   }
 
   .slide-content {
@@ -284,7 +288,7 @@ body {
   }
 
   .slide-content h2 {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 
   .slide-content p {
@@ -298,12 +302,12 @@ body {
   }
 
   .slider-heading {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .slider-container {
-    height: 60vh; /* Adjusted for tablets */
-    min-height: 400px;
+    height: 55vh;
+    min-height: 380px;
   }
 
   .slide-content {
@@ -313,34 +317,29 @@ body {
   }
 
   .slide-content h2 {
-    font-size: 1.8rem;
-  }
-
-  .read-more-btn {
-    padding: 12px 24px;
-    font-size: 1rem;
+    font-size: 1.7rem;
   }
 
   .slider-arrow {
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
   }
 
   .slider-indicators {
-    bottom: 40px;
+    bottom: 35px;
   }
 }
 
 @media (max-width: 480px) {
   .slider-container {
-    height: 90vh; /* Taller on mobile for better impact */
-    min-height: 350px;
+    height: 85vh;
+    min-height: 340px;
   }
 
   .slide-content {
     width: 100%;
     padding: 20px;
-    padding-bottom: 70px;
+    padding-bottom: 65px;
   }
 
   .slide::after {
@@ -354,7 +353,7 @@ body {
   }
 
   .slide-content h2 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
 
   .slide-content p {
@@ -362,22 +361,12 @@ body {
     line-height: 1.5;
   }
 
-  .read-more-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-
   .slider-arrow {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
   .slider-indicators {
-    bottom: 30px;
-  }
-
-  .slider-dot {
-    width: 8px;
-    height: 8px;
+    bottom: 25px;
   }
 }

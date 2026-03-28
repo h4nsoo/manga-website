@@ -10,16 +10,29 @@
 }
 
 .bookmarks-header h1 {
-  color: var(--accent-color);
   text-align: center;
-  margin: 20px 0 10px;
-  font-size: 2.5rem;
+  margin: 20px 0 8px;
+  font-size: 2.2rem;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.bookmarks-header h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: var(--accent-color);
 }
 
 .bookmarks-page .subtitle {
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   margin-bottom: 20px;
+  font-size: 0.95rem;
 }
 
 .bookmarks-header-actions {
@@ -29,21 +42,23 @@
 }
 
 .clear-all-btn {
-  background: #ff6b6b;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  transition: background 0.3s ease;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .clear-all-btn:hover {
   background: #ff5252;
+  color: white;
 }
 
-/* Grid styling to match PopularPage */
+/* Grid styling to match other pages */
 .bookmarks-page .manga-grid {
   grid-template-columns: repeat(6, 1fr);
 }
@@ -80,8 +95,8 @@
 
 .empty-bookmarks svg {
   margin-bottom: 1rem;
-  color: var(--text-secondary);
-  opacity: 0.5;
+  color: var(--text-muted);
+  opacity: 0.4;
 }
 
 .empty-bookmarks h2 {
@@ -90,14 +105,10 @@
 }
 
 .empty-bookmarks p {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 @media (max-width: 768px) {
-  .bookmarks-header {
-    text-align: center;
-  }
-
   .bookmarks-header h1 {
     font-size: 2rem;
   }

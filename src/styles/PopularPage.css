@@ -5,15 +5,29 @@
 }
 
 .popular-page h1 {
-  color: var(--accent-color);
   text-align: center;
-  margin: 20px 0 10px;
+  margin: 20px 0 8px;
+  position: relative;
+  padding-bottom: 12px;
+  font-size: 2.2rem;
+}
+
+.popular-page h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: var(--accent-color);
 }
 
 .popular-page .subtitle {
   text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-size: 0.95rem;
 }
 
 .popular-page .manga-grid {
