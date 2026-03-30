@@ -1,4 +1,4 @@
-# 📚 Manga Reader Web Application
+# Manga Reader Web Application
 
 A modern, feature-rich manga reading web application built with React 19 and Vite. Browse thousands of manga titles, track your favorites with bookmarks, and enjoy a smooth reading experience powered by the MangaDex API.
 
@@ -6,17 +6,17 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 ![Vite](https://img.shields.io/badge/Vite-6.3.1-646CFF.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-## ✨ Features
+## Features
 
-### 🎯 Core Functionality
+### Core Functionality
 
-- **📖 Chapter Reader** - Clean, distraction-free reading interface with page-by-page navigation
-- **🔍 Advanced Search** - Search manga by title with instant results
-- **🔖 Bookmark System** - Save and manage your favorite manga with localStorage persistence
-- **📱 Fully Responsive** - Optimized for desktop, tablet, and mobile devices
-- **⚡ Performance Optimized** - Lazy loading, image optimization, and efficient rendering
+- **Chapter Reader** - Clean, distraction-free reading interface with page-by-page navigation
+- **Advanced Search** - Search manga by title with instant results
+- **Bookmark System** - Save and manage your favorite manga with localStorage persistence
+- **Fully Responsive** - Optimized for desktop, tablet, and mobile devices
+- **Performance Optimized** - Lazy loading, image optimization, and efficient rendering
 
-### 🏠 Pages & Navigation
+### Pages & Navigation
 
 - **Home Page** - Featured manga carousel with auto-rotating slider
 - **Browse** - Explore manga library with search capabilities
@@ -26,7 +26,7 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 - **Manga Details** - Comprehensive information including description, genres, authors, and chapter list
 - **Chapter Reader** - Full-screen reading experience with next/previous navigation
 
-### 🎨 UI/UX Features
+### UI/UX Features
 
 - Custom scrollbar with SimpleBar
 - Auto-hiding header in chapter reader
@@ -37,7 +37,7 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 - Genre buttons for filtering
 - Social media links in footer
 
-### 🔧 Technical Features
+### Technical Features
 
 - Context API for state management (Bookmarks, Scroll)
 - Custom hooks for scroll behavior
@@ -47,7 +47,7 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 - English chapter verification
 - Multiple fallback strategies for API endpoints
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Core
 
@@ -70,7 +70,7 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 - **ESLint** - Code linting and quality
 - **Vite Plugin React** - Fast refresh and HMR
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -111,7 +111,7 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 
    Navigate to `http://localhost:5173` (or the port shown in your terminal)
 
-## 📜 Available Scripts
+## Available Scripts
 
 | Command           | Description                              |
 | ----------------- | ---------------------------------------- |
@@ -120,7 +120,7 @@ A modern, feature-rich manga reading web application built with React 19 and Vit
 | `npm run preview` | Preview production build locally         |
 | `npm run lint`    | Run ESLint to check code quality         |
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 manga-app/
@@ -168,7 +168,7 @@ manga-app/
 └── README.md              # This file
 ```
 
-## 🎮 Usage Guide
+## Usage Guide
 
 ### Browsing Manga
 
@@ -192,7 +192,7 @@ manga-app/
 3. Click "Clear All" to remove all bookmarks at once
 4. Bookmarks persist across browser sessions
 
-## 🔑 Key Features Explained
+## Key Features Explained
 
 ### Bookmark System
 
@@ -217,7 +217,7 @@ manga-app/
 - Safe content rating filters
 - Comprehensive error handling
 
-## 🌐 API Reference
+## API Reference
 
 This application uses the [MangaDex API](https://api.mangadex.org/docs/):
 
@@ -227,7 +227,7 @@ This application uses the [MangaDex API](https://api.mangadex.org/docs/):
 - `GET /chapter/{id}` - Get chapter details
 - `GET /at-home/server/{id}` - Get chapter pages
 
-## 🎨 Customization
+## Customization
 
 ### Modifying Styles
 
@@ -247,14 +247,15 @@ This application uses the [MangaDex API](https://api.mangadex.org/docs/):
 - Add routes in `src/App.jsx`
 - Create page components in `src/pages/`
 
-## 🐛 Known Issues & Limitations
+## Known Issues & Limitations
 
-- Requires active internet connection
-- Dependent on MangaDex API availability
-- Some manga may not have English translations
-- Large chapter lists may take time to load
+- **API Availability & Rate Limits**: Dependent on the MangaDex API's uptime and caching layers. Heavy fetching may occasionally trigger rate limits.
+- **Externally Hosted Chapters**: Certain officially licensed series (e.g., *Solo Leveling*) do not host chapter images on MangaDex to respect publisher copyright. The app detects these and provides out-bound links directly to the official sources.
+- **Search Pagination Constraints**: Browsing deep into search results and reading feeds is capped by the upstream API's maximum offset threshold (typically 10,000 items).
+- Some niche manga may not have English translations available within the database.
+- Exceptionally large chapter lists (500+ chapters) may take a few seconds to fetch, deduplicate, and sort.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -264,22 +265,22 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
+## Author
 
 **Mohamed Belgacem**
 
 - GitHub: [@h4nsoo](https://github.com/h4nsoo)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [MangaDex](https://mangadex.org/) for providing the API
 - All contributors and users of this application
 
-## 📞 Support
+## Support
 
 If you encounter any issues or have questions:
 
@@ -289,8 +290,7 @@ If you encounter any issues or have questions:
 
 ---
 
-⭐ **If you find this project useful, please consider giving it a star!** ⭐
+**If you find this project useful, please consider giving it a star!**
 
 ---
 
-**Made with ❤️ and React**

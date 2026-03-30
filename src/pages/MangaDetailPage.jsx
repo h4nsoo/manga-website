@@ -556,28 +556,50 @@ function MangaDetailPage() {
           <div className="chapters-grid">
             {chapters.map((chapter) => (
               <div key={chapter.id} className="chapter-card">
-                <Link
-                  to={`/manga/${manga.id}/chapter/${chapter.id}`}
-                  state={{ manga, chapter }}
-                  className="chapter-link"
-                >
-                  <div className="chapter-number">
-                    {chapter.volume && `Vol. ${chapter.volume} `}
-                    Chapter {chapter.number}
-                  </div>
-                  {!isRedundantTitle(chapter.title, chapter.number) && (
-                    <div className="chapter-title">{chapter.title}</div>
-                  )}
-                  <div className="chapter-meta">
-                    <span className="chapter-date">{chapter.published}</span>
-                    {chapter.pages > 0 && (
-                      <span className="chapter-pages">
-                        {chapter.pages} pages
-                      </span>
+                {chapter.externalUrl ? (
+                  <a
+                    href={chapter.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="chapter-link external-link"
+                  >
+                    <div className="chapter-number">
+                      {chapter.volume && `Vol. ${chapter.volume} `}
+                      Chapter {chapter.number}
+                    </div>
+                    {!isRedundantTitle(chapter.title, chapter.number) && (
+                      <div className="chapter-title">{chapter.title}</div>
                     )}
-                  </div>
-                  <div className="chapter-group">{chapter.scanlationGroup}</div>
-                </Link>
+                    <div className="chapter-meta">
+                      <span className="chapter-date">{chapter.published}</span>
+                      <span className="chapter-pages" style={{ color: "var(--accent-color)" }}>Externally Hosted ↗</span>
+                    </div>
+                    <div className="chapter-group">{chapter.scanlationGroup}</div>
+                  </a>
+                ) : (
+                  <Link
+                    to={`/manga/${manga.id}/chapter/${chapter.id}`}
+                    state={{ manga, chapter }}
+                    className="chapter-link"
+                  >
+                    <div className="chapter-number">
+                      {chapter.volume && `Vol. ${chapter.volume} `}
+                      Chapter {chapter.number}
+                    </div>
+                    {!isRedundantTitle(chapter.title, chapter.number) && (
+                      <div className="chapter-title">{chapter.title}</div>
+                    )}
+                    <div className="chapter-meta">
+                      <span className="chapter-date">{chapter.published}</span>
+                      {chapter.pages > 0 && (
+                        <span className="chapter-pages">
+                          {chapter.pages} pages
+                        </span>
+                      )}
+                    </div>
+                    <div className="chapter-group">{chapter.scanlationGroup}</div>
+                  </Link>
+                )}
               </div>
             ))}
           </div>

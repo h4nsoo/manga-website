@@ -91,7 +91,7 @@ export const useScrollToTop = (scrollRef) => {
                 scrollElement.style.scrollBehavior = originalBehavior;
               }, 0);
             }
-          } catch (error) {
+          } catch {
             const originalBehavior =
               document.documentElement.style.scrollBehavior;
             document.documentElement.style.scrollBehavior = "auto";

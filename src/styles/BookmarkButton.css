@@ -1,5 +1,5 @@
 .bookmark-btn {
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(255, 255, 255, 0.55);
   border: none;
   border-radius: 8px;
   width: 36px;
@@ -18,7 +18,7 @@
 }
 
 .bookmark-btn:hover {
-  background: rgba(0, 0, 0, 0.7);
+  background: #e1618c;
 }
 
 .bookmark-btn.bookmarked {

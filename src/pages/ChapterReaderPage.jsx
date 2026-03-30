@@ -23,7 +23,7 @@ function ChapterReaderPage() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
   // References for scrolling
-  const pageRefs = useRef([]);
+
   const lastScrollTop = useRef(0);
 
   // Scroll event handler to hide/show header
@@ -110,6 +110,7 @@ function ChapterReaderPage() {
                 number: prev.attributes.chapter || "N/A",
                 title:
                   prev.attributes.title || `Chapter ${prev.attributes.chapter}`,
+                externalUrl: prev.attributes.externalUrl || null,
               });
             }
 
@@ -120,6 +121,7 @@ function ChapterReaderPage() {
                 number: next.attributes.chapter || "N/A",
                 title:
                   next.attributes.title || `Chapter ${next.attributes.chapter}`,
+                externalUrl: next.attributes.externalUrl || null,
               });
             }
           }
@@ -154,9 +156,29 @@ function ChapterReaderPage() {
             title:
               chapterResult.data.attributes.title ||
               `Chapter ${chapterResult.data.attributes.chapter || "N/A"}`,
+            externalUrl: chapterResult.data.attributes.externalUrl || null,
           };
         }
         setChapterInfo(chapterToUse);
+
+        if (chapterToUse?.externalUrl) {
+          setError(
+            <span>
+              This chapter is hosted externally.{" "}
+              <a 
+                href={chapterToUse.externalUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ color: "var(--accent-color)", textDecoration: "underline" }}
+              >
+                Read it here
+              </a>
+            </span>
+          );
+          setPages([]);
+          setLoading(false);
+          return;
+        }
 
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/at-home/server/${chapterId}`
@@ -167,6 +189,10 @@ function ChapterReaderPage() {
         }
 
         const data = await response.json();
+
+        if (!data.chapter || !data.chapter.data || data.chapter.data.length === 0) {
+          throw new Error("No pages found for this chapter on MangaDex.");
+        }
 
         // Format page URLs
         const baseUrl = data.baseUrl;

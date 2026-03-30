@@ -1,97 +1,38 @@
 import React, { useState } from "react";
 import "../styles/SearchBox.css";
 
-function SearchBox({ onSearch, getCoverImageUrl }) {
+function SearchBox({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!searchTerm.trim()) return;
-
     if (onSearch) {
-      setIsSearching(true);
-
-      try {
-        const response = await fetch(
-          `https://api.mangadex.org/manga?title=${encodeURIComponent(
-            searchTerm
-          )}&limit=20&includes[]=cover_art&contentRating[]=safe`
-        );
-
-        if (!response.ok) {
-          throw new Error(`Search failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.data && data.data.length > 0) {
-          const formattedResults = data.data.map((item) => {
-            const coverRelationship = item.relationships.find(
-              (rel) => rel.type === "cover_art"
-            );
-
-            let coverFileName = null;
-            if (coverRelationship && coverRelationship.attributes) {
-              coverFileName = coverRelationship.attributes.fileName;
-            }
-
-            return {
-              id: item.id,
-              title:
-                item.attributes.title.en ||
-                item.attributes.title.ja ||
-                Object.values(item.attributes.title)[0],
-              coverImage: getCoverImageUrl(item.id, coverFileName),
-            };
-          });
-
-          onSearch(formattedResults);
-        } else {
-          onSearch([]);
-        }
-      } catch (err) {
-        console.error("Search error:", err);
-        onSearch([]);
-      } finally {
-        setIsSearching(false);
-      }
+      onSearch(searchTerm);
     }
   };
 
   return (
     <form
-      className={`search-box ${isFocused ? "focused" : ""} ${
-        isSearching ? "searching" : ""
-      }`}
+      className={`search-box ${isFocused ? "focused" : ""}`}
       onSubmit={handleSubmit}
     >
-      <button
-        className="search-button"
-        type="submit"
-        aria-label="Search"
-        disabled={isSearching}
-      >
-        {isSearching ? (
-          <div className="search-spinner"></div>
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        )}
+      <button className="search-button" type="submit" aria-label="Search">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
       </button>
 
       <input
@@ -103,16 +44,15 @@ function SearchBox({ onSearch, getCoverImageUrl }) {
         onBlur={() => setIsFocused(false)}
         className="search-input"
         aria-label="Search for manga"
-        disabled={isSearching}
       />
 
-      {searchTerm && !isSearching && (
+      {searchTerm && (
         <button
           className="clear-button"
           type="button"
           onClick={() => {
             setSearchTerm("");
-            if (onSearch) onSearch(null);
+            if (onSearch) onSearch("");
           }}
           aria-label="Clear search"
         ></button>
